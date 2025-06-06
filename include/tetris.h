@@ -7,13 +7,6 @@
 #include <string.h>
 #include <time.h>
 
-/* 타이머  */
-#define CCHAR 0
-#ifdef CTIME
-#undef CTIME
-#endif
-#define CTIME 1
-
 /* 왼쪽, 오른쪽, 아래, 회전  */
 #define LEFT 0
 #define RIGHT 1
@@ -99,8 +92,6 @@ int x = 3, y = 0;
 int game = GAME_END;
 int best_point = 0;
 long point = 0;
-
-struct termios initial_settings, new_settings;
 
 /* 함수 선언 */
 int display_menu(void);

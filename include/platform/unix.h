@@ -9,7 +9,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-void clear_screen(void) { printf("\033[H\033[J"); }
+struct termios initial_settings, new_settings;
+
+void clear_screen(void) {
+  printf("\033[H\033[J");
+}
 
 void init_keyboard() {
   tcgetattr(STDIN_FILENO, &initial_settings);
@@ -20,7 +24,9 @@ void init_keyboard() {
   tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
 }
 
-void close_keyboard() { tcsetattr(STDIN_FILENO, TCSANOW, &initial_settings); }
+void close_keyboard() {
+  tcsetattr(STDIN_FILENO, TCSANOW, &initial_settings);
+}
 
 int kbhit(void) {
   int ch;
@@ -44,9 +50,10 @@ int kbhit(void) {
 int getch(void) {
   int ch;
 
-  while ((ch = getchar()) == EOF);
+  while ((ch = getchar()) == EOF)
+    ;
 
   return ch;
 }
 
-#endif // PLATFORM_UNIX_H
+#endif  // PLATFORM_UNIX_H

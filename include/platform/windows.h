@@ -46,4 +46,7 @@ int kbhit(void) {
 int getch(void) {
   return _getch();
 }
+static inline void usleep(unsigned int microseconds) {
+  Sleep(microseconds / 1000);
+}
 #endif  // PLATFORM_WINDOWS_H
