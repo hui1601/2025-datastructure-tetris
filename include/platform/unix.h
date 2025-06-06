@@ -54,19 +54,12 @@ int getch(void) {
   return ch;
 }
 
-// check if compiler supports usleep
-#ifdef __USE_UNIX98
-static inline void usleep(unsigned int microseconds) {
-  usleep(microseconds);
-}
-#else
 static inline void usleep(unsigned int microseconds) {
   struct timeval tv;
   tv.tv_sec = microseconds / 1000000;
   tv.tv_usec = microseconds % 1000000;
   select(0, NULL, NULL, NULL, &tv);
 }
-#endif
 
 void init_platform(void) {
   // Enable UTF-8 support in terminal(Xterm Control Sequences)

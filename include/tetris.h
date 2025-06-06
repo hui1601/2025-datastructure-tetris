@@ -112,4 +112,7 @@ void print_result(void);
 int getch(void);
 int kbhit(void);
 void init_platform(void);
+void init_keyboard(void);
+void close_keyboard(void);
+void usleep(unsigned int microseconds);
 #endif
