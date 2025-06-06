@@ -1,182 +1,13 @@
-#include <locale.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <wchar.h>
-
+#include <tetris.h>
 #if defined(_WIN32)
-// For Win32 and Win64 systems
-#include <conio.h>
-#include <windows.h>
-#define WINDOWS
+// For Windows
+#include <platform/windows.h>
 #elif defined(__unix__) || defined(__APPLE__)
 // For POSIX compliant systems
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <termios.h>
-#include <unistd.h>
-#define POSIX
+#include <platform/unix.h>
 #else
-// #error "Oops! Unsupported platform!"
+#error "Oops! Unsupported platform!"
 #endif
-
-/* 타이머  */
-#define CCHAR 0
-#ifdef CTIME
-#undef CTIME
-#endif
-#define CTIME 1
-
-/* 왼쪽, 오른쪽, 아래, 회전  */
-#define LEFT 0
-#define RIGHT 1
-#define DOWN 2
-#define ROTATE 3
-
-/* 블록 모양 */
-#define I_BLOCK 0
-#define T_BLOCK 1
-#define S_BLOCK 2
-#define Z_BLOCK 3
-#define L_BLOCK 4
-#define J_BLOCK 5
-#define O_BLOCK 6
-
-/* 게임 시작, 게임 종료 */
-#define GAME_START 0
-#define GAME_END 1
-
-/* 테트리스 테이블 크기 */
-#define TABLE_X 20
-#define TABLE_Y 10
-
-char i_block[4][4][4] = {
-    {{1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}},
-    {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 1, 1, 1}},
-    {{1, 0, 0, 0}, {1, 0, 0, 0}, {1, 0, 0, 0}, {1, 0, 0, 0}}};
-
-char t_block[4][4][4] = {
-    {{1, 0, 0, 0}, {1, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{0, 0, 1, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}},
-    {{0, 0, 0, 0}, {0, 1, 0, 0}, {1, 1, 1, 0}, {0, 0, 0, 0}}};
-
-char s_block[4][4][4] = {
-    {{1, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}},
-    {{0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{0, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}},
-    {{0, 0, 0, 0}, {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}}};
-
-char z_block[4][4][4] = {
-    {{0, 1, 0, 0}, {1, 1, 0, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{0, 0, 1, 0}, {0, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}},
-    {{0, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}};
-
-char l_block[4][4][4] = {
-    {{1, 0, 0, 0}, {1, 0, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 1, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{0, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}},
-    {{0, 0, 0, 0}, {0, 0, 1, 0}, {1, 1, 1, 0}, {0, 0, 0, 0}}};
-
-char j_block[4][4][4] = {
-    {{0, 1, 0, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}},
-    {{1, 0, 0, 0}, {1, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 0, 0}, {1, 0, 0, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}},
-    {{0, 0, 0, 0}, {1, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}}};
-
-char o_block[4][4][4] = {
-    {{1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-    {{1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
-
-char tetris_table[21][10];
-
-static struct result {
-  char name[30];
-  long point;
-  int year;
-  int month;
-  int day;
-  int hour;
-  int min;
-  int rank;
-} temp_result;
-
-int block_number = 0;
-int next_block_number = 0;
-int block_state = 0;
-int x = 3, y = 0;
-int game = GAME_END;
-int best_point = 0;
-long point = 0;
-
-struct termios initial_settings, new_settings;
-
-/* 함수 선언 */
-int display_menu(void);
-void init_tetris_table(void);
-int game_start(void);
-void display_tetris_table(void);
-char (*block_pointer)[4][4];
-bool check_collision(int x, int y, int rotation);
-void drop_block(void);
-void move_block(int direction);
-void rotate_block(void);
-int clear_lines(void);
-void clear_screen(void);
-void add_block_to_table(void);
-void search_result(void);
-void print_result(void);
-int getch(void);
-int kbhit(void);
-
-void clear_screen(void) { printf("\033[H\033[J"); }
-
-void init_keyboard() {
-  tcgetattr(STDIN_FILENO, &initial_settings);
-  new_settings = initial_settings;
-  new_settings.c_lflag &= ~(ICANON | ECHO);
-  new_settings.c_cc[VMIN] = 1;
-  new_settings.c_cc[VTIME] = 0;
-  tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
-}
-
-void close_keyboard() { tcsetattr(STDIN_FILENO, TCSANOW, &initial_settings); }
-
-int kbhit(void) {
-  int ch;
-  int oldf;
-
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-  ch = getchar();
-
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-  if (ch != EOF) {
-    ungetc(ch, stdin);
-    return 1;
-  }
-  clearerr(stdin);
-  return 0;
-}
-
-int getch(void) {
-  int ch;
-
-  while ((ch = getchar()) == EOF);
-
-  return ch;
-}
 
 void init_tetris_table(void) {
   int i, j;
@@ -391,7 +222,8 @@ void display_tetris_table(void) {
               break;
             }
           }
-          if (in_block) break;
+          if (in_block)
+            break;
         }
 
         if (in_block) {
@@ -478,14 +310,14 @@ int game_start(void) {
 
   temp_result.point = point;
   time_t t = time(NULL);
-  struct tm *tm_info = localtime(&t);
+  struct tm* tm_info = localtime(&t);
   temp_result.year = tm_info->tm_year + 1900;
   temp_result.month = tm_info->tm_mon + 1;
   temp_result.day = tm_info->tm_mday;
   temp_result.hour = tm_info->tm_hour;
   temp_result.min = tm_info->tm_min;
 
-  FILE *fp = fopen("result.txt", "a");
+  FILE* fp = fopen("result.txt", "a");
   if (fp != NULL) {
     fprintf(fp, "%s %ld %d %d %d %d %d\n", temp_result.name, temp_result.point,
             temp_result.year, temp_result.month, temp_result.day,
@@ -503,7 +335,7 @@ int game_start(void) {
 /* 결과 검색 */
 void search_result(void) {
   char name[30];
-  FILE *fp;
+  FILE* fp;
   struct result r;
   int found = 0;
 
@@ -546,7 +378,7 @@ void search_result(void) {
 
 /* 전체 결과 출력 */
 void print_result(void) {
-  FILE *fp;
+  FILE* fp;
   struct result r;
   int count = 0;
 
