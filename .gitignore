@@ -8,4 +8,5 @@ obj/
 *.a
 *.lib
 tetris
+tetris.exe
 result.txt
