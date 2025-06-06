@@ -15,15 +15,15 @@ void init_tetris_table(void) {
   for (i = 0; i < 20; i++) {
     for (j = 0; j < 10; j++) {
       if (j == 0 || j == 9) {
-        tetris_table[i][j] = 1;  // 좌우 벽
+        tetris_table[i][j] = 1; // 좌우 벽
       } else {
-        tetris_table[i][j] = 0;  // 빈 공간
+        tetris_table[i][j] = 0; // 빈 공간
       }
     }
   }
 
   for (j = 0; j < 10; j++) {
-    tetris_table[20][j] = 1;  // 바닥
+    tetris_table[20][j] = 1; // 바닥
   }
 }
 
@@ -107,14 +107,13 @@ int clear_lines(void) {
           tetris_table[k][j] = tetris_table[k - 1][j];
         }
       }
-
       // 맨 위 라인 초기화
       for (j = 1; j < 9; j++) {
         tetris_table[0][j] = 0;
       }
 
       lines_cleared++;
-      i++;  // 같은 라인 다시 검사
+      i++; // 같은 라인 다시 검사
     }
   }
 
@@ -268,30 +267,24 @@ int game_start(void) {
     }
 
     if (kbhit()) {
-      ch = getch();
+      ch = tolower(getch());
       switch (ch) {
         case 'j':
-        case 'J':
           move_block(LEFT);
           break;
         case 'l':
-        case 'L':
           move_block(RIGHT);
           break;
         case 'k':
-        case 'K':
           move_block(DOWN);
           break;
         case 'i':
-        case 'I':
           rotate_block();
           break;
         case 'a':
-        case 'A':
           drop_block();
           break;
         case 'p':
-        case 'P':
           game = GAME_END;
           break;
       }
@@ -302,6 +295,7 @@ int game_start(void) {
 
   close_keyboard();
 
+  clear_screen();
   printf("\n\n\t\tGAME OVER!\n");
   printf("\t\tFinal Score: %ld\n", point);
   printf("\n\t\tEnter your name: ");

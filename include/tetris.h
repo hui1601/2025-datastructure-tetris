@@ -109,6 +109,8 @@ void clear_screen(void);
 void add_block_to_table(void);
 void search_result(void);
 void print_result(void);
+
+/* 플랫폼 관련 함수 */
 int getch(void);
 int kbhit(void);
 void init_platform(void);

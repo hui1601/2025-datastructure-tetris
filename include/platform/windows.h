@@ -37,16 +37,6 @@ void close_keyboard(void) {
   HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
   SetConsoleMode(hIn, __old_console_mode);
 }
-
-// Wrappers for kbhit() and getch() using Windows API
-int kbhit(void) {
-  return _kbhit();
-}
-
-int getch(void) {
-  return _getch();
-}
-
 static inline void usleep(unsigned int microseconds) {
   Sleep(microseconds / 1000);
 }
@@ -62,7 +52,7 @@ void init_platform(void) {
   if (!SetConsoleCP(CP_UTF8)) {
     fprintf(
         stderr,
-        "Warning: SetConsoleCP(CP_UTFF8) failed. Input may not be UTF-8.\n");
+        "Warning: SetConsoleCP(CP_UTF8) failed. Input may not be UTF-8.\n");
     return;
   }
 
@@ -72,4 +62,14 @@ void init_platform(void) {
             "installed and up to date?\n");
   }
 }
-#endif  // PLATFORM_WINDOWS_H
+
+// Wrappers for kbhit() and getch() using Windows API
+int kbhit(void) {
+  return _kbhit();
+}
+
+int getch(void) {
+  return _getch();
+}
+
+#endif // PLATFORM_WINDOWS_H

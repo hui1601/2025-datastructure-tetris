@@ -69,4 +69,4 @@ void init_platform(void) {
   }
 }
 
-#endif  // PLATFORM_UNIX_H
+#endif // PLATFORM_UNIX_H
