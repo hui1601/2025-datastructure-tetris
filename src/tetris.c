@@ -1,10 +1,10 @@
 #include <tetris.h>
-#if defined(_WIN32)
-// For Windows
-#include <platform/windows.h>
-#elif defined(__unix__) || defined(__APPLE__)
+#if defined(__unix__) || defined(__APPLE__)
 // For POSIX compliant systems
 #include <platform/unix.h>
+#elif defined(_WIN32)
+// For Windows
+#include <platform/windows.h>
 #else
 #error "Oops! Unsupported platform!"
 #endif
