@@ -49,11 +49,31 @@ int kbhit(void) {
 
 int getch(void) {
   int ch;
-
   while ((ch = getchar()) == EOF)
     ;
-
   return ch;
+}
+
+// check if compiler supports usleep
+#ifdef __USE_UNIX98
+static inline void usleep(unsigned int microseconds) {
+  usleep(microseconds);
+}
+#else
+static inline void usleep(unsigned int microseconds) {
+  struct timeval tv;
+  tv.tv_sec = microseconds / 1000000;
+  tv.tv_usec = microseconds % 1000000;
+  select(0, NULL, NULL, NULL, &tv);
+}
+#endif
+
+void init_platform(void) {
+  // Enable UTF-8 support in terminal(Xterm Control Sequences)
+  printf("\x1b%%G");
+  if (setlocale(LC_ALL, "en_US.UTF-8") == NULL) {
+    fprintf(stderr, "Cannot set locale to en_US.UTF-8. Is it installed?\n");
+  }
 }
 
 #endif  // PLATFORM_UNIX_H

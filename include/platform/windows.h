@@ -29,8 +29,7 @@ void init_keyboard(void) {
   GetConsoleMode(hIn, &__old_console_mode);
 
   DWORD new_mode = __old_console_mode;
-  new_mode &=
-      ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+  new_mode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
   SetConsoleMode(hIn, new_mode);
 }
 
@@ -43,10 +42,34 @@ void close_keyboard(void) {
 int kbhit(void) {
   return _kbhit();
 }
+
 int getch(void) {
   return _getch();
 }
+
 static inline void usleep(unsigned int microseconds) {
   Sleep(microseconds / 1000);
+}
+
+void init_platform(void) {
+  if (!SetConsoleOutputCP(CP_UTF8)) {
+    fprintf(stderr,
+            "Warning: SetConsoleOutputCP(CP_UTF8) failed. Output may not be "
+            "UTF-8.\n");
+    return;
+  }
+
+  if (!SetConsoleCP(CP_UTF8)) {
+    fprintf(
+        stderr,
+        "Warning: SetConsoleCP(CP_UTFF8) failed. Input may not be UTF-8.\n");
+    return;
+  }
+
+  if (setlocale(LC_ALL, ".UTF8") == NULL) {
+    fprintf(stderr,
+            "Error: Cannot set C library locale to .UTF8. Is the UCRT "
+            "installed and up to date?\n");
+  }
 }
 #endif  // PLATFORM_WINDOWS_H

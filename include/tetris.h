@@ -1,6 +1,7 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
+#include <locale.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,4 +111,5 @@ void search_result(void);
 void print_result(void);
 int getch(void);
 int kbhit(void);
+void init_platform(void);
 #endif

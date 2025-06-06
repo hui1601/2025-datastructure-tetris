@@ -440,6 +440,7 @@ int display_menu(void) {
 
 /* 메인 함수 */
 int main(void) {
+  init_platform();
   int menu = 1;
 
   while (menu) {
