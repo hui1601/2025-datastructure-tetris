@@ -1,10 +1,12 @@
 #pragma once
 #ifndef PLATFORM_UNIX_H
 #define PLATFORM_UNIX_H
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -52,11 +54,8 @@ int getch(void) {
     ;
   return ch;
 }
-// check if the os already has usleep defined
-#ifndef usleep
-#include <errno.h>
-#include <sys/time.h>
-inline void usleep(unsigned int microseconds) {
+
+void platform_usleep(unsigned int microseconds) {
   struct timeval tv;
   tv.tv_sec = microseconds / 1000000;
   tv.tv_usec = microseconds % 1000000;
@@ -66,7 +65,6 @@ inline void usleep(unsigned int microseconds) {
     ret = select(0, NULL, NULL, NULL, &tv);
   } while (ret == -1 && errno == EINTR);
 }
-#endif  // usleep
 
 void init_platform(void) {
   // Enable UTF-8 support in terminal(Xterm Control Sequences)

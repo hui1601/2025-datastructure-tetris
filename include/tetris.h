@@ -121,12 +121,9 @@ int getch(void);
 int kbhit(void);
 #endif  // kbhit
 
-#ifndef usleep
-inline void usleep(unsigned int microseconds);
-#endif  // usleep
-
-/* 플랫폼 초기화 함수들 */
+/* 플랫폼 Wrapper 함수들 */
 void init_platform(void);
 void init_keyboard(void);
 void close_keyboard(void);
+void platform_usleep(unsigned int microseconds);
 #endif

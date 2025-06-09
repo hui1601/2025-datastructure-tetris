@@ -290,7 +290,7 @@ int game_start(void) {
       }
     }
 
-    usleep(50000);
+    platform_usleep(50000);
   }
 
   close_keyboard();

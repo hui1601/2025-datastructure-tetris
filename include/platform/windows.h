@@ -37,7 +37,8 @@ void close_keyboard(void) {
   HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
   SetConsoleMode(hIn, __old_console_mode);
 }
-inline void usleep(unsigned int microseconds) {
+
+inline void platform_usleep(unsigned int microseconds) {
   Sleep(microseconds / 1000);
 }
 
