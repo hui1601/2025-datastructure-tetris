@@ -1,3 +1,4 @@
+#pragma once
 #ifndef TETRIS_H
 #define TETRIS_H
 
