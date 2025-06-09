@@ -1,0 +1,56 @@
+name: Build Tetris Project
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2 (for Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            make
+
+      - name: Install build tools (for Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Set executable name
+        id: set_name
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            echo "EXECUTABLE_NAME=tetris.exe" >> $GITHUB_ENV
+          else
+            echo "EXECUTABLE_NAME=tetris" >> $GITHUB_ENV
+          fi
+
+      - name: Build with make
+        run: make
+        shell: msys2 {0}
+        if: runner.os == 'Windows'
+
+      - name: Build with make
+        run: make
+        if: runner.os != 'Windows'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tetris-binary-${{ matrix.os }}
+          path: ./${{ env.EXECUTABLE_NAME }}
