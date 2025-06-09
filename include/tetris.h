@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 /* 왼쪽, 오른쪽, 아래, 회전  */
 #define LEFT 0
@@ -116,5 +117,5 @@ int kbhit(void);
 void init_platform(void);
 void init_keyboard(void);
 void close_keyboard(void);
-void usleep(unsigned int microseconds);
+inline void usleep(unsigned int microseconds);
 #endif

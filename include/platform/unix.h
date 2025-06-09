@@ -54,7 +54,7 @@ int getch(void) {
   return ch;
 }
 
-static inline void usleep(unsigned int microseconds) {
+inline void usleep(unsigned int microseconds) {
   struct timeval tv;
   tv.tv_sec = microseconds / 1000000;
   tv.tv_usec = microseconds % 1000000;
