@@ -126,4 +126,4 @@ void init_platform(void);
 void init_keyboard(void);
 void close_keyboard(void);
 void platform_usleep(unsigned int microseconds);
-#endif
+#endif  // TETRIS_H
