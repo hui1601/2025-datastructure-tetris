@@ -14,7 +14,7 @@ void clear_screen(void) {
   printf("\033[H\033[J");
 }
 
-void init_keyboard() {
+void init_keyboard(void) {
   tcgetattr(STDIN_FILENO, &initial_settings);
   new_settings = initial_settings;
   new_settings.c_lflag &= ~(ICANON | ECHO);
@@ -23,7 +23,7 @@ void init_keyboard() {
   tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
 }
 
-void close_keyboard() {
+void close_keyboard(void) {
   tcsetattr(STDIN_FILENO, TCSANOW, &initial_settings);
 }
 
