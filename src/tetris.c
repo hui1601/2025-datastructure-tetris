@@ -28,7 +28,7 @@ void init_tetris_table(void) {
 }
 
 /* 블록 포인터 설정 */
-char (*set_block(int block_num))[4][4] {
+const char (*set_block(int block_num))[4][4] {
   switch (block_num) {
     case I_BLOCK:
       return i_block;
@@ -51,7 +51,7 @@ char (*set_block(int block_num))[4][4] {
 /* 충돌 검사 */
 bool check_collision(int cx, int cy, int rotation) {
   int i, j;
-  char (*block)[4][4] = set_block(block_number);
+  const char (*block)[4][4] = set_block(block_number);
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
@@ -75,7 +75,7 @@ bool check_collision(int cx, int cy, int rotation) {
 /* 블록을 테이블에 추가 */
 void add_block_to_table(void) {
   int i, j;
-  char (*block)[4][4] = set_block(block_number);
+  const char (*block)[4][4] = set_block(block_number);
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
@@ -182,13 +182,13 @@ void drop_block(void) {
 /* 테트리스 테이블 표시 */
 void display_tetris_table(void) {
   int i, j;
-  char (*block)[4][4] = set_block(block_number);
+  const char (*block)[4][4] = set_block(block_number);
 
   clear_screen();
 
   // 다음 블록 표시
   printf("\n\t\t[ NEXT BLOCK ]\n");
-  char (*next)[4][4] = set_block(next_block_number);
+  const char (*next)[4][4] = set_block(next_block_number);
   for (i = 0; i < 4; i++) {
     printf("\t\t");
     for (j = 0; j < 4; j++) {

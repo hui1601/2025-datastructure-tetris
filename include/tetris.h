@@ -90,6 +90,7 @@ static struct result {
 int block_number = 0;
 int next_block_number = 0;
 int block_state = 0;
+char (*block_pointer)[4][4];
 int x = 3, y = 0;
 int game = GAME_END;
 int best_point = 0;
@@ -100,7 +101,7 @@ int display_menu(void);
 void init_tetris_table(void);
 int game_start(void);
 void display_tetris_table(void);
-char (*block_pointer)[4][4];
+const char (*set_block(int block_num))[4][4];
 bool check_collision(int x, int y, int rotation);
 void drop_block(void);
 void move_block(int direction);
