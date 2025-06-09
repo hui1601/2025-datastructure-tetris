@@ -1,13 +1,13 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
+#include <ctype.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <ctype.h>
 
 /* 왼쪽, 오른쪽, 아래, 회전  */
 #define LEFT 0
@@ -112,11 +112,21 @@ void add_block_to_table(void);
 void search_result(void);
 void print_result(void);
 
-/* 플랫폼 관련 함수 */
+/* 플랫폼에 따라 존재하는 함수들 */
+#ifndef getch
 int getch(void);
+#endif  // getch
+
+#ifndef kbhit
 int kbhit(void);
+#endif  // kbhit
+
+#ifndef usleep
+inline void usleep(unsigned int microseconds);
+#endif  // usleep
+
+/* 플랫폼 초기화 함수들 */
 void init_platform(void);
 void init_keyboard(void);
 void close_keyboard(void);
-inline void usleep(unsigned int microseconds);
 #endif
