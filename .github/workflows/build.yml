@@ -33,6 +33,7 @@ jobs:
 
       - name: Set executable name
         id: set_name
+        shell: bash
         run: |
           if [[ "${{ runner.os }}" == "Windows" ]]; then
             echo "EXECUTABLE_NAME=tetris.exe" >> $GITHUB_ENV
@@ -41,13 +42,8 @@ jobs:
           fi
 
       - name: Build with make
+        shell: ${{ runner.os == 'Windows' && 'msys2' || 'bash' }}
         run: make
-        shell: msys2 {0}
-        if: runner.os == 'Windows'
-
-      - name: Build with make
-        run: make
-        if: runner.os != 'Windows'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
