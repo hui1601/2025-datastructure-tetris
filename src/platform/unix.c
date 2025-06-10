@@ -1,6 +1,4 @@
-#pragma once
-#ifndef PLATFORM_UNIX_H
-#define PLATFORM_UNIX_H
+#include <tetris.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -73,5 +71,3 @@ void init_platform(void) {
     fprintf(stderr, "Cannot set locale to en_US.UTF-8. Is it installed?\n");
   }
 }
-
-#endif  // PLATFORM_UNIX_H

@@ -1,7 +1,4 @@
-#pragma once
-#ifndef PLATFORM_WINDOWS_H
-#define PLATFORM_WINDOWS_H
-
+#include <tetris.h>
 #include <conio.h>
 #include <windows.h>
 
@@ -73,5 +70,3 @@ int kbhit(void) {
 int getch(void) {
   return _getch();
 }
-
-#endif // PLATFORM_WINDOWS_H
