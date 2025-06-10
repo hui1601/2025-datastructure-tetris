@@ -36,19 +36,19 @@ ifeq ($(TARGET_PLATFORM),WINDOWS)
 	CFLAGS += -D_WIN32
 	PLATFORM_SRC = $(SRCDIR)/platform/windows.c
 else ifeq ($(TARGET_PLATFORM),UNIX)
-    TARGET_EXE = $(TARGET)
-    RM = rm -f
-    MKDIR_P = mkdir -p
-    CFLAGS += -D__unix__
+	TARGET_EXE = $(TARGET)
+	RM = rm -f
+	MKDIR_P = mkdir -p
+	CFLAGS += -D__unix__
 	PLATFORM_SRC = $(SRCDIR)/platform/unix.c
 else ifeq ($(TARGET_PLATFORM),APPLE)
-    TARGET_EXE = $(TARGET)
-    RM = rm -f
-    MKDIR_P = mkdir -p
-    CFLAGS += -D__APPLE__
-	PLATFORM_SRC = $(SRCDIR)/platform/unix.c # Apple도 Unix 기반
+	TARGET_EXE = $(TARGET)
+	RM = rm -f
+	MKDIR_P = mkdir -p
+	CFLAGS += -D__APPLE__ -D__unix__
+	PLATFORM_SRC = $(SRCDIR)/platform/unix.c
 else
-    $(error "Unsupported target platform or detection failed! UNAME_S: $(UNAME_S), OS: $(OS)")
+	$(error "Unsupported target platform or detection failed! UNAME_S: $(UNAME_S), OS: $(OS)")
 endif
 
 SOURCES = $(SRCDIR)/tetris.c $(PLATFORM_SRC)
@@ -60,10 +60,10 @@ $(TARGET_EXE): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
 	@echo "Build complete: $@"
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
+$(OBJDIR)/platform/%.o: $(SRCDIR)/platform/%.c | $(OBJDIR)/platform
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-$(OBJDIR)/platform/%.o: $(SRCDIR)/platform/%.c | $(OBJDIR)/platform
+$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(OBJDIR):
