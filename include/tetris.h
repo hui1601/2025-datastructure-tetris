@@ -34,6 +34,18 @@
 #define TABLE_X 20
 #define TABLE_Y 10
 
+/* 결과 구조체 */
+typedef struct result {
+  char name[30];
+  uint64_t point;
+  int year;
+  int month;
+  int day;
+  int hour;
+  int min;
+  int rank;
+} play_result;
+
 /* 함수 선언 */
 int display_menu(void);
 void init_tetris_table(void);

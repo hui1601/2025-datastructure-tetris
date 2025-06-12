@@ -44,16 +44,7 @@ const char o_block[4][4][4] = {
 
 char tetris_table[21][10];
 
-static struct result {
-  char name[30];
-  uint64_t point;
-  int year;
-  int month;
-  int day;
-  int hour;
-  int min;
-  int rank;
-} temp_result;
+play_result temp_result;
 
 int block_number = 0;
 int next_block_number = 0;
