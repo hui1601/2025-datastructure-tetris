@@ -353,7 +353,10 @@ int game_start(void) {
   FILE* fp = fopen("result.txt", "a");
   int64_t temp_time = (int64_t)temp_result.time;
   if (fp != NULL) {
-    fprintf(fp, "%s %"PRIu64" %"PRId64"\n", temp_result.name, temp_result.point, temp_time);
+    // Write with null-terminated string
+    fwrite(temp_result.name, sizeof(char), strlen(temp_result.name) + 1, fp);
+    fwrite(&temp_result.point, sizeof(uint64_t), 1, fp);
+    fwrite(&temp_time, sizeof(int64_t), 1, fp);
     fclose(fp);
   }
 
@@ -387,16 +390,26 @@ void search_result(void) {
 
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
-
-  int64_t temp_time = (int64_t)r.time;
-  while (fscanf(fp, "%s %"PRIu64" %"PRId64"", r.name, &r.point, &temp_time) == 3) {
-    if (strcmp(r.name, name) == 0) {
-      struct tm* tm_info = localtime(&r.time);
-      printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
-             tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
-             tm_info->tm_hour, tm_info->tm_min);
-      found = 1;
+  while (!feof(fp)) {
+    char tmp = '\0';
+    short int i = 0;
+    while ((tmp = fgetc(fp)) != '\0' && tmp != EOF) {
+      r.name[i++] = tmp;
     }
+    if (i == 0) {
+      break;  // 파일 끝에 도달
+    }
+    r.name[i] = '\0';
+    fread(&r.point, sizeof(uint64_t), 1, fp);
+    fread(&r.time, sizeof(int64_t), 1, fp);
+    if (strcmp(r.name, name) != 0) {
+      continue;
+    }
+    found = 1;
+    struct tm* tm_info = localtime(&r.time);
+    printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+           tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
+           tm_info->tm_hour, tm_info->tm_min);
   }
 
   fclose(fp);
@@ -431,13 +444,23 @@ void print_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  int64_t temp_time = (int64_t)r.time;
-  while (fscanf(fp, "%s %"PRIu64" %"PRId64"", r.name, &r.point, &temp_time) == 3) {
-      struct tm* tm_info = localtime(&r.time);
-      printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
-             tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
-             tm_info->tm_hour, tm_info->tm_min);
-      count++;
+  while (!feof(fp)) {
+    char tmp = '\0';
+    short int i = 0;
+    while ((tmp = fgetc(fp)) != '\0' && tmp != EOF) {
+      r.name[i++] = tmp;
+    }
+    if (i == 0) {
+      break;  // 파일 끝에 도달
+    }
+    r.name[i] = '\0';
+    fread(&r.point, sizeof(uint64_t), 1, fp);
+    fread(&r.time, sizeof(int64_t), 1, fp);
+    struct tm* tm_info = localtime(&r.time);
+    printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+           tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
+           tm_info->tm_hour, tm_info->tm_min);
+    count++;
   }
 
   fclose(fp);
