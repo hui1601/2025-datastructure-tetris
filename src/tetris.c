@@ -351,8 +351,9 @@ int game_start(void) {
   time_t t = time(NULL);
   temp_result.time = t;
   FILE* fp = fopen("result.txt", "a");
+  int64_t temp_time = (int64_t)temp_result.time;
   if (fp != NULL) {
-    fprintf(fp, "%s %"PRIu64" %ld\n", temp_result.name, temp_result.point, temp_result.time);
+    fprintf(fp, "%s %"PRIu64" %"PRId64"\n", temp_result.name, temp_result.point, temp_time);
     fclose(fp);
   }
 
@@ -387,7 +388,8 @@ void search_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %"PRIu64" %ld", r.name, &r.point, &r.time) == 3) {
+  int64_t temp_time = (int64_t)r.time;
+  while (fscanf(fp, "%s %"PRIu64" %"PRId64"", r.name, &r.point, &temp_time) == 3) {
     if (strcmp(r.name, name) == 0) {
       struct tm* tm_info = localtime(&r.time);
       printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
@@ -429,7 +431,8 @@ void print_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %"PRIu64" %ld", r.name, &r.point, &r.time) == 3) {
+  int64_t temp_time = (int64_t)r.time;
+  while (fscanf(fp, "%s %"PRIu64" %"PRId64"", r.name, &r.point, &temp_time) == 3) {
       struct tm* tm_info = localtime(&r.time);
       printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
              tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
