@@ -247,7 +247,7 @@ void display_tetris_table(void) {
   }
 
   // 점수 표시
-  printf("\n\t\t[ SCORE: %ld ]\n\n", point);
+  printf("\n\t\t[ SCORE: %"PRIu64" ]\n\n", point);
 
   // 테이블 그리기
   for (i = 0; i < 21; i++) {
@@ -342,7 +342,7 @@ int game_start(void) {
 
   clear_screen();
   printf("\n\n\t\tGAME OVER!\n");
-  printf("\t\tFinal Score: %ld\n", point);
+  printf("\t\tFinal Score: %"PRIu64"\n", point);
   printf("\n\t\tEnter your name: ");
 
   scanf("%s", temp_result.name);
@@ -352,7 +352,7 @@ int game_start(void) {
   temp_result.time = t;
   FILE* fp = fopen("result.txt", "a");
   if (fp != NULL) {
-    fprintf(fp, "%s %ld %ld\n", temp_result.name, temp_result.point, temp_result.time);
+    fprintf(fp, "%s %"PRIu64" %ld\n", temp_result.name, temp_result.point, temp_result.time);
     fclose(fp);
   }
 
@@ -387,10 +387,10 @@ void search_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %lu %ld", r.name, &r.point, &r.time) == 3) {
+  while (fscanf(fp, "%s %"PRIu64" %ld", r.name, &r.point, &r.time) == 3) {
     if (strcmp(r.name, name) == 0) {
       struct tm* tm_info = localtime(&r.time);
-      printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+      printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
              tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
              tm_info->tm_hour, tm_info->tm_min);
       found = 1;
@@ -429,9 +429,9 @@ void print_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %lu %ld", r.name, &r.point, &r.time) == 3) {
+  while (fscanf(fp, "%s %"PRIu64" %ld", r.name, &r.point, &r.time) == 3) {
       struct tm* tm_info = localtime(&r.time);
-      printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+      printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
              tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
              tm_info->tm_hour, tm_info->tm_min);
       count++;

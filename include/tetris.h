@@ -3,6 +3,7 @@
 #define TETRIS_H
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stdint.h>
