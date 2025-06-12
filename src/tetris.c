@@ -404,10 +404,10 @@ void search_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %lld %d %d %d %d %d", r.name, &r.point, &r.year,
+  while (fscanf(fp, "%s %lu %d %d %d %d %d", r.name, &r.point, &r.year,
                 &r.month, &r.day, &r.hour, &r.min) == 7) {
     if (strcmp(r.name, name) == 0) {
-      printf("\t\t%-20s %-10lld %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+      printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
              r.year, r.month, r.day, r.hour, r.min);
       found = 1;
     }
@@ -445,9 +445,9 @@ void print_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %lld %d %d %d %d %d", r.name, &r.point, &r.year,
+  while (fscanf(fp, "%s %lu %d %d %d %d %d", r.name, &r.point, &r.year,
                 &r.month, &r.day, &r.hour, &r.min) == 7) {
-    printf("\t\t%-20s %-10lld %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+    printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
            r.year, r.month, r.day, r.hour, r.min);
     count++;
   }
