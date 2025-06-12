@@ -46,7 +46,7 @@ char tetris_table[21][10];
 
 static struct result {
   char name[30];
-  long point;
+  uint64_t point;
   int year;
   int month;
   int day;
@@ -61,8 +61,7 @@ int block_state = 0;
 char (*block_pointer)[4][4];
 int x = 3, y = 0;
 int game = GAME_END;
-int best_point = 0;
-long point = 0;
+uint64_t point = 0;
 
 void init_tetris_table(void) {
   int i, j;
@@ -405,10 +404,10 @@ void search_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %ld %d %d %d %d %d", r.name, &r.point, &r.year,
+  while (fscanf(fp, "%s %lld %d %d %d %d %d", r.name, &r.point, &r.year,
                 &r.month, &r.day, &r.hour, &r.min) == 7) {
     if (strcmp(r.name, name) == 0) {
-      printf("\t\t%-20s %-10ld %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+      printf("\t\t%-20s %-10lld %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
              r.year, r.month, r.day, r.hour, r.min);
       found = 1;
     }
@@ -446,9 +445,9 @@ void print_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %ld %d %d %d %d %d", r.name, &r.point, &r.year,
+  while (fscanf(fp, "%s %lld %d %d %d %d %d", r.name, &r.point, &r.year,
                 &r.month, &r.day, &r.hour, &r.min) == 7) {
-    printf("\t\t%-20s %-10ld %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+    printf("\t\t%-20s %-10lld %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
            r.year, r.month, r.day, r.hour, r.min);
     count++;
   }
