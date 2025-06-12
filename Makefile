@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -g -std=c11
+CFLAGS = -Wall -Wextra -Werror -pedantic -g -std=c11
 LDFLAGS =
 INCLUDES = -Iinclude
 
