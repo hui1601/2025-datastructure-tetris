@@ -38,11 +38,7 @@
 typedef struct result {
   char name[30];
   uint64_t point;
-  int year;
-  int month;
-  int day;
-  int hour;
-  int min;
+  time_t time;
   int rank;
 } play_result;
 

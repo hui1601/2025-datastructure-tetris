@@ -349,18 +349,10 @@ int game_start(void) {
 
   temp_result.point = point;
   time_t t = time(NULL);
-  struct tm* tm_info = localtime(&t);
-  temp_result.year = tm_info->tm_year + 1900;
-  temp_result.month = tm_info->tm_mon + 1;
-  temp_result.day = tm_info->tm_mday;
-  temp_result.hour = tm_info->tm_hour;
-  temp_result.min = tm_info->tm_min;
-
+  temp_result.time = t;
   FILE* fp = fopen("result.txt", "a");
   if (fp != NULL) {
-    fprintf(fp, "%s %ld %d %d %d %d %d\n", temp_result.name, temp_result.point,
-            temp_result.year, temp_result.month, temp_result.day,
-            temp_result.hour, temp_result.min);
+    fprintf(fp, "%s %ld %ld\n", temp_result.name, temp_result.point, temp_result.time);
     fclose(fp);
   }
 
@@ -395,11 +387,12 @@ void search_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %lu %d %d %d %d %d", r.name, &r.point, &r.year,
-                &r.month, &r.day, &r.hour, &r.min) == 7) {
+  while (fscanf(fp, "%s %lu %ld", r.name, &r.point, &r.time) == 3) {
     if (strcmp(r.name, name) == 0) {
+      struct tm* tm_info = localtime(&r.time);
       printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
-             r.year, r.month, r.day, r.hour, r.min);
+             tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
+             tm_info->tm_hour, tm_info->tm_min);
       found = 1;
     }
   }
@@ -436,11 +429,12 @@ void print_result(void) {
   printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
   printf("\t\t================================================\n");
 
-  while (fscanf(fp, "%s %lu %d %d %d %d %d", r.name, &r.point, &r.year,
-                &r.month, &r.day, &r.hour, &r.min) == 7) {
-    printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
-           r.year, r.month, r.day, r.hour, r.min);
-    count++;
+  while (fscanf(fp, "%s %lu %ld", r.name, &r.point, &r.time) == 3) {
+      struct tm* tm_info = localtime(&r.time);
+      printf("\t\t%-20s %-10lu %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
+             tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
+             tm_info->tm_hour, tm_info->tm_min);
+      count++;
   }
 
   fclose(fp);
