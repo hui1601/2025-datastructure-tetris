@@ -9,4 +9,4 @@ obj/
 *.lib
 tetris
 tetris.exe
-result.txt
+*.dat
