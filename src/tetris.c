@@ -53,7 +53,9 @@ char (*block_pointer)[4][4];
 int x = 3, y = 0;
 int game = GAME_END;
 uint64_t point = 0;
+avl_tree* result_tree = NULL;
 
+/* 테트리스 테이블 초기화 */
 void init_tetris_table(void) {
   int i, j;
 
@@ -247,7 +249,7 @@ void display_tetris_table(void) {
   }
 
   // 점수 표시
-  printf("\n\t\t[ SCORE: %"PRIu64" ]\n\n", point);
+  printf("\n\t\t[ SCORE: %" PRIu64 " ]\n\n", point);
 
   // 테이블 그리기
   for (i = 0; i < 21; i++) {
@@ -342,7 +344,7 @@ int game_start(void) {
 
   clear_screen();
   printf("\n\n\t\tGAME OVER!\n");
-  printf("\t\tFinal Score: %"PRIu64"\n", point);
+  printf("\t\tFinal Score: %" PRIu64 "\n", point);
   printf("\n\t\tEnter your name: ");
 
   scanf("%s", temp_result.name);
@@ -350,16 +352,8 @@ int game_start(void) {
   temp_result.point = point;
   time_t t = time(NULL);
   temp_result.time = t;
-  FILE* fp = fopen("result.txt", "a");
-  int64_t temp_time = (int64_t)temp_result.time;
-  if (fp != NULL) {
-    // Write with null-terminated string
-    fwrite(temp_result.name, sizeof(char), strlen(temp_result.name) + 1, fp);
-    fwrite(&temp_result.point, sizeof(uint64_t), 1, fp);
-    fwrite(&temp_time, sizeof(int64_t), 1, fp);
-    fclose(fp);
-  }
-
+  result_tree->root = avl_insert_data(result_tree, result_tree->root, temp_result);
+  avl_save(result_tree);
   printf("\n\t\tPress any key to continue...");
   getchar();
   getchar();
@@ -370,52 +364,53 @@ int game_start(void) {
 /* 결과 검색 */
 void search_result(void) {
   char name[30];
-  FILE* fp;
-  struct result r;
   int found = 0;
 
   clear_screen();
   printf("\n\n\t\t[ SEARCH RESULT ]\n");
-  printf("\n\t\tEnter name to search: ");
-  scanf("%s", name);
+  printf("\t\t============================\n");
+  printf("\n\t\tWhich method do you want to search?\n");
+  printf("\t\t\t   1) Search by name\n");
+  printf("\t\t\t   2) Search by score\n");
+  printf("\t\t\t   3) Search by score range\n");
+  printf("\t\t============================\n");
+  printf("\n\t\tEnter your choice: ");
+  int choice;
+  uint64_t score;
+  scanf("%d", &choice);
 
-  fp = fopen("result.txt", "r");
-  if (fp == NULL) {
-    printf("\n\t\tNo records found!\n");
-    printf("\n\t\tPress any key to continue...");
-    getchar();
-    getchar();
-    return;
-  }
-
-  printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
-  printf("\t\t================================================\n");
-  while (!feof(fp)) {
-    char tmp = '\0';
-    short int i = 0;
-    while ((tmp = fgetc(fp)) != '\0' && tmp != EOF) {
-      r.name[i++] = tmp;
-    }
-    if (i == 0) {
-      break;  // 파일 끝에 도달
-    }
-    r.name[i] = '\0';
-    fread(&r.point, sizeof(uint64_t), 1, fp);
-    fread(&r.time, sizeof(int64_t), 1, fp);
-    if (strcmp(r.name, name) != 0) {
-      continue;
-    }
-    found = 1;
-    struct tm* tm_info = localtime(&r.time);
-    printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
-           tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
-           tm_info->tm_hour, tm_info->tm_min);
-  }
-
-  fclose(fp);
-
-  if (!found) {
-    printf("\n\t\tNo records found for '%s'!\n", name);
+  switch (choice) {
+    case 1:
+      printf("\n\t\tEnter name to search: ");
+      scanf("%s", name);
+      found = avl_print_by_name(result_tree->root, name);
+      if (!found) {
+        printf("\n\t\tNo records found for name: %s\n", name);
+      }
+      break;
+    case 2:
+      printf("\n\t\tEnter score to search: ");
+      scanf("%" PRIu64, &score);
+      found = avl_print_by_score(result_tree->root, score);
+      if (!found) {
+        printf("\n\t\tNo records found for score: %" PRIu64 "\n", score);
+      }
+      break;
+    case 3:
+      printf("\n\t\tEnter score range to search (min max): ");
+      uint64_t min, max;
+      scanf("%" PRIu64 " %" PRIu64, &min, &max);
+      found = avl_print_score_range(result_tree->root, min, max);
+      if (!found) {
+        printf("\n\t\tNo records found for score range: %" PRIu64 " - %" PRIu64 "\n", min, max);
+      }
+      break;
+    default:
+      printf("\n\t\tInvalid choice!\n");
+      printf("\n\t\tPress any key to continue...");
+      getchar();
+      getchar();
+      return;
   }
 
   printf("\n\t\tPress any key to continue...");
@@ -425,47 +420,22 @@ void search_result(void) {
 
 /* 전체 결과 출력 */
 void print_result(void) {
-  FILE* fp;
-  struct result r;
-  int count = 0;
-
   clear_screen();
-  printf("\n\n\t\t[ ALL RECORDS ]\n");
+  uint64_t count = 0;
+  printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
+  printf("\t\t================================================\n");
 
-  fp = fopen("result.txt", "r");
-  if (fp == NULL) {
+  avl_node* node = result_tree->root;
+  if (node == NULL) {
     printf("\n\t\tNo records found!\n");
     printf("\n\t\tPress any key to continue...");
     getchar();
     getchar();
     return;
+  } else {
+    count = avl_print_data(node);
   }
-
-  printf("\n\t\t%-20s %-10s %-20s\n", "NAME", "SCORE", "DATE");
-  printf("\t\t================================================\n");
-
-  while (!feof(fp)) {
-    char tmp = '\0';
-    short int i = 0;
-    while ((tmp = fgetc(fp)) != '\0' && tmp != EOF) {
-      r.name[i++] = tmp;
-    }
-    if (i == 0) {
-      break;  // 파일 끝에 도달
-    }
-    r.name[i] = '\0';
-    fread(&r.point, sizeof(uint64_t), 1, fp);
-    fread(&r.time, sizeof(int64_t), 1, fp);
-    struct tm* tm_info = localtime(&r.time);
-    printf("\t\t%-20s %-10"PRIu64" %04d-%02d-%02d %02d:%02d\n", r.name, r.point,
-           tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,
-           tm_info->tm_hour, tm_info->tm_min);
-    count++;
-  }
-
-  fclose(fp);
-
-  printf("\n\t\tTotal records: %d\n", count);
+  printf("\n\t\tTotal records: %"PRIu64"\n", count);
   printf("\n\t\tPress any key to continue...");
   getchar();
   getchar();
@@ -501,7 +471,10 @@ int display_menu(void) {
 int main(void) {
   init_platform();
   int menu = 1;
-
+  result_tree = avl_load();
+  if (result_tree == NULL) {
+    result_tree = avl_create_tree();
+  }
   while (menu) {
     menu = display_menu();
 
@@ -513,9 +486,9 @@ int main(void) {
     } else if (menu == 3) {
       print_result();
     } else if (menu == 4) {
-      exit(0);
+      break;
     }
   }
-
+  avl_save(result_tree);
   return 0;
 }

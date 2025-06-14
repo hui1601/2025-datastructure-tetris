@@ -12,6 +12,16 @@
 #include <string.h>
 #include <time.h>
 
+/* 결과 구조체 */
+typedef struct result {
+  char name[30];
+  uint64_t point;
+  time_t time;
+  int rank;
+} play_result;
+
+#include <avl.h>
+
 /* 왼쪽, 오른쪽, 아래, 회전  */
 #define LEFT 0
 #define RIGHT 1
@@ -34,14 +44,6 @@
 /* 테트리스 테이블 크기 */
 #define TABLE_X 20
 #define TABLE_Y 10
-
-/* 결과 구조체 */
-typedef struct result {
-  char name[30];
-  uint64_t point;
-  time_t time;
-  int rank;
-} play_result;
 
 /* 함수 선언 */
 int display_menu(void);

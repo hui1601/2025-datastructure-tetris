@@ -51,7 +51,7 @@ else
 	$(error "Unsupported target platform or detection failed! UNAME_S: $(UNAME_S), OS: $(OS)")
 endif
 
-SOURCES = $(SRCDIR)/tetris.c $(PLATFORM_SRC)
+SOURCES = $(SRCDIR)/tetris.c $(SRCDIR)/avl.c $(PLATFORM_SRC)
 OBJECTS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES))
 
 all: $(TARGET_EXE)
