@@ -269,7 +269,7 @@ void display_tetris_table(void) {
       // 다음 블록 표시
       printf("\t    ");
       for (j = 0; j < 4; j++) {
-        if (next[block_state][i % 4][j] != 0) {
+        if (next[0][i % 4][j] != 0) {
           printf("＠");
         } else {
           printf("  ");
