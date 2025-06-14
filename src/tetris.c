@@ -337,6 +337,7 @@ int game_start(void) {
   srand(time(NULL));
   block_number = rand() % 7;
   next_block_number = rand() % 7;
+  hold_block_number = -1;
   block_state = 0;
   x = 3;
   y = 0;
