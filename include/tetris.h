@@ -55,6 +55,7 @@ bool check_collision(int x, int y, int rotation);
 void drop_block(void);
 void move_block(int direction);
 void rotate_block(void);
+void hold_block(void);
 int clear_lines(void);
 void clear_screen(void);
 void add_block_to_table(void);

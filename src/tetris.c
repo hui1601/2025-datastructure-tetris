@@ -48,6 +48,7 @@ play_result temp_result;
 
 int block_number = 0;
 int next_block_number = 0;
+int hold_block_number = -1;
 int block_state = 0;
 char (*block_pointer)[4][4];
 int x = 3, y = 0;
@@ -226,11 +227,35 @@ void drop_block(void) {
   move_block(DOWN);
 }
 
+/* 블록 Hold */
+void hold_block(void) {
+  if (hold_block_number < 0) {
+    hold_block_number = block_number;
+    block_number = next_block_number;
+    next_block_number = rand() % 7;
+    block_state = 0;
+    x = 3;
+    y = 0;
+
+    if (check_collision(x, y, block_state)) {
+      game = GAME_END;
+    }
+  } else {
+    int temp = block_number;
+    block_number = hold_block_number;
+    hold_block_number = temp;
+  }
+}
+
 /* 테트리스 테이블 표시 */
 void display_tetris_table(void) {
   int i, j;
   const char (*block)[4][4] = set_block(block_number);
   const char (*next)[4][4] = set_block(next_block_number);
+  const char (*hold)[4][4] = NULL;
+  if (hold_block_number >= 0) {
+    hold = set_block(hold_block_number);
+  }
 
   clear_screen();
 
@@ -275,12 +300,29 @@ void display_tetris_table(void) {
           printf("  ");
         }
       }
+    } else if (i == 4) {
+      printf("    [ HOLD BLOCK ]");
+    } else if (i < 8) {
+      // 보류된 블록 표시
+      printf("\t    ");
+      if (hold != NULL) {
+        for (j = 0; j < 4; j++) {
+          if (hold[0][(i - 5) % 4][j] != 0) {
+            printf("＠");
+          } else {
+            printf("  ");
+          }
+        }
+      } else {
+        printf("    ");
+      }
     }
     printf("\n");
   }
 
   printf(
-      "\n\t[ j: LEFT | l: RIGHT | k: DOWN | i: ROTATE | a: DROP | p: QUIT ]\n");
+      "\n\t[ j: LEFT | l: RIGHT | k: DOWN | i: ROTATE | a: DROP | h: HOLD | p: "
+      "QUIT ]\n");
   fflush(stdout);
 }
 
@@ -327,6 +369,9 @@ int game_start(void) {
           break;
         case 'a':
           drop_block();
+          break;
+        case 'h':
+          hold_block();
           break;
         case 'p':
           game = GAME_END;
