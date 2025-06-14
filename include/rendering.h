@@ -10,10 +10,14 @@
 typedef enum {
   // "■"+색상 사용
   RENDER_MODE_UNICODE_BLOCK_ELEMENTS,
+  // 배경색만 사용
+  RENDER_MODE_BACKGROUND_COLOR,
+  // 이모지 사용
+  RENDER_MODE_EMOJI,
   // "##"+색상 사용
   RENDER_MODE_PLATFORM_COLOR_CODES,
   // "II", "TT" 등 ASCII art 사용
-  RENDER_MODE_ASCII_ONLY
+  RENDER_MODE_ASCII_ONLY,
 } render_mode_t;
 
 extern render_mode_t current_render_mode;

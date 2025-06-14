@@ -36,6 +36,38 @@ char block_type_to_char(int block_type) {
   }
 }
 
+/* 블록 유형에 해당하는 이모지 문자열 반환 */
+const char* get_emoji_for_block_type(int block_type) {
+  switch (block_type) {
+    case I_BLOCK:
+      return "🟫";
+    case T_BLOCK:
+      return "🟪";
+    case S_BLOCK:
+      return "🟩";
+    case Z_BLOCK:
+      return "🟥";
+    case L_BLOCK:
+      return "🟧";
+    case J_BLOCK:
+      return "🟦";
+    case O_BLOCK:
+      return "🟨";
+    default:
+      return "  ";
+  }
+}
+
+/* 벽에 해당하는 이모지 문자열 반환 */
+const char* get_emoji_for_wall(void) {
+  return "⬛";  // Black Square for Wall
+}
+
+/* 빈 공간에 해당하는 공백 문자열 반환 */
+const char* get_emoji_for_empty(void) {
+  return "  ";
+}
+
 /* 렌더링 설정 저장 */
 void save_render_settings(render_mode_t mode) {
   FILE* f = fopen(RENDER_CONFIG_FILE, "wb");
@@ -61,8 +93,7 @@ render_mode_t load_render_settings(void) {
           RENDER_CONFIG_FILE);
     }
     fclose(f);
-    if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
-        mode > RENDER_MODE_ASCII_ONLY) {
+    if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS || mode > RENDER_MODE_EMOJI) {
       fprintf(
           stderr,
           "Warning: Invalid render setting %d found in %s, using default.\n",
@@ -76,11 +107,21 @@ render_mode_t load_render_settings(void) {
 /* 콘솔 색상 설정 */
 void print_sample_line(const char* mode_name,
                        int block_type_example,
-                       const char* block_char_example) {
+                       const char* block_char_override) {
   printf("\t\t    %s Example: ", mode_name);
-  render_set_color_for_block_type(block_type_example);
-  printf("%s", block_char_example);
-  render_reset_color();
+  if (current_render_mode == RENDER_MODE_EMOJI) {
+    if (block_char_override) {
+      printf("%s", block_char_override);
+    } else if (block_type_example == -1) {
+      printf("%s", get_emoji_for_wall());
+    } else {
+      printf("%s", get_emoji_for_block_type(block_type_example));
+    }
+  } else {
+    render_set_color_for_block_type(block_type_example);
+    printf("%s", block_char_override);
+    render_reset_color();
+  }
   printf("\n");
 }
 
@@ -100,14 +141,30 @@ void ask_user_for_render_preference(void) {
   print_sample_line("Wall", -1, "■ ");
   printf("\t\t   (Uses ■ character. Looks best on modern terminals.)\n\n");
 
+  current_render_mode = RENDER_MODE_BACKGROUND_COLOR;
+  printf("\t\t2. Background Color with Spaces\n");
+  print_sample_line("S-Block", S_BLOCK, "  ");
+  print_sample_line("Wall", -1, "  ");
+  printf(
+      "\t\t   (Uses '  ' with colored background. Good for minimalist "
+      "style.)\n\n");
+
+  current_render_mode = RENDER_MODE_EMOJI;
+  printf("\t\t3. Emoji Characters (Experimental)\n");
+  print_sample_line("Z-Block", Z_BLOCK, get_emoji_for_block_type(Z_BLOCK));
+  print_sample_line("Wall", -1, get_emoji_for_wall());
+  printf(
+      "\t\t   (Uses emoji like 🟥, ⬛. Requires good Unicode font "
+      "support. Most terminals cannot display full-width emoji correctly.)\n\n");
+
   current_render_mode = RENDER_MODE_PLATFORM_COLOR_CODES;
-  printf("\t\t2. Standard Terminal Colors with '##'\n");
+  printf("\t\t4. Standard Terminal Colors with '##'\n");
   print_sample_line("T-Block", T_BLOCK, "##");
   print_sample_line("Wall", -1, "##");
   printf("\t\t   (Uses ## characters. Good if ■ has issues.)\n\n");
 
   current_render_mode = RENDER_MODE_ASCII_ONLY;
-  printf("\t\t3. ASCII Only (Most Compatible)\n");
+  printf("\t\t5. ASCII Only (Most Compatible)\n");
   print_sample_line("L-Block", L_BLOCK, "LL");
   print_sample_line("Wall", -1, "##");
   printf(
@@ -117,7 +174,7 @@ void ask_user_for_render_preference(void) {
   current_render_mode = old_mode;
 
   printf("\t\t=========================================\n");
-  printf("\t\tEnter your choice (1-3): ");
+  printf("\t\tEnter your choice (1-5): ");
 
   char buffer[10];
   if (scanf("%9s", buffer) == 1) {
@@ -130,9 +187,15 @@ void ask_user_for_render_preference(void) {
       current_render_mode = RENDER_MODE_UNICODE_BLOCK_ELEMENTS;
       break;
     case 2:
-      current_render_mode = RENDER_MODE_PLATFORM_COLOR_CODES;
+      current_render_mode = RENDER_MODE_BACKGROUND_COLOR;
       break;
     case 3:
+      current_render_mode = RENDER_MODE_EMOJI;
+      break;
+    case 4:
+      current_render_mode = RENDER_MODE_PLATFORM_COLOR_CODES;
+      break;
+    case 5:
       current_render_mode = RENDER_MODE_ASCII_ONLY;
       break;
     default:
@@ -144,6 +207,7 @@ void ask_user_for_render_preference(void) {
   save_render_settings(current_render_mode);
 }
 
+/* 콘솔 색상 초기화 및 렌더링 시스템 초기화 */
 void init_rendering_system(void) {
 #ifdef _WIN32
   hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -163,12 +227,103 @@ void init_rendering_system(void) {
   }
 }
 
-void internal_set_color(int color_id) {
-  if (current_render_mode == RENDER_MODE_ASCII_ONLY &&
-      color_id != BLOCK_COLOR_DEFAULT) {
+/* 콘솔 배경 색상 설정 */
+static void internal_set_background_color(int color_id) {
+  if (current_render_mode == RENDER_MODE_ASCII_ONLY ||
+      current_render_mode == RENDER_MODE_EMOJI ||
+      current_render_mode == RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
+      current_render_mode == RENDER_MODE_PLATFORM_COLOR_CODES) {
     return;
   }
 
+#ifdef _WIN32
+  if (!hConsole)
+    return;
+  WORD bg_attribute_bits = 0;
+  switch (color_id) {
+    case BLOCK_COLOR_I:
+      bg_attribute_bits = BACKGROUND_BLUE | BACKGROUND_GREEN;
+      break;
+    case BLOCK_COLOR_L:
+      bg_attribute_bits = BACKGROUND_RED | BACKGROUND_GREEN;
+      break;
+    case BLOCK_COLOR_J:
+      bg_attribute_bits = BACKGROUND_BLUE;
+      break;
+    case BLOCK_COLOR_S:
+      bg_attribute_bits = BACKGROUND_GREEN;
+      break;
+    case BLOCK_COLOR_Z:
+      bg_attribute_bits = BACKGROUND_RED;
+      break;
+    case BLOCK_COLOR_T:
+      bg_attribute_bits = BACKGROUND_RED | BACKGROUND_BLUE;
+      break;
+    case BLOCK_COLOR_O:
+      bg_attribute_bits =
+          BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY;
+      break;
+    case BLOCK_COLOR_WALL:
+      bg_attribute_bits = BACKGROUND_INTENSITY;
+      break;
+    case BLOCK_COLOR_DEFAULT:
+    default:
+      SetConsoleTextAttribute(hConsole, original_attributes);
+      return;
+  }
+  SetConsoleTextAttribute(hConsole,
+                          (original_attributes & 0x0F) | bg_attribute_bits);
+#else  // Unix-like systems
+  const char* bg_color_code;
+  switch (color_id) {
+    case BLOCK_COLOR_I:
+      bg_color_code = "\033[106m";  // Bright Cyan BG
+      break;
+    case BLOCK_COLOR_L:
+      bg_color_code = "\033[43m";  // Dark Yellow BG (for Orange)
+      break;
+    case BLOCK_COLOR_J:
+      bg_color_code = "\033[104m";  // Bright Blue BG
+      break;
+    case BLOCK_COLOR_S:
+      bg_color_code = "\033[102m";  // Bright Green BG
+      break;
+    case BLOCK_COLOR_Z:
+      bg_color_code = "\033[101m";  // Bright Red BG
+      break;
+    case BLOCK_COLOR_T:
+      bg_color_code = "\033[105m";  // Bright Magenta BG
+      break;
+    case BLOCK_COLOR_O:
+      bg_color_code = "\033[103m";  // Bright Yellow BG
+      break;
+    case BLOCK_COLOR_WALL:
+      bg_color_code = "\033[47m";  // White BG
+      break;
+    case BLOCK_COLOR_DEFAULT:
+    default:
+      bg_color_code = "\033[49m";  // Reset background to default
+      break;
+  }
+  printf("%s", bg_color_code);
+#endif
+}
+
+/* 콘솔 색상 설정 */
+void internal_set_color(int color_id) {
+  if (current_render_mode == RENDER_MODE_ASCII_ONLY &&
+      color_id != BLOCK_COLOR_DEFAULT && color_id != BLOCK_COLOR_WALL) {
+    return;
+  }
+  if (current_render_mode == RENDER_MODE_EMOJI &&
+      color_id != BLOCK_COLOR_DEFAULT) {
+    return;
+  }
+  if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
+    if (color_id != BLOCK_COLOR_DEFAULT) {
+      return;
+    }
+  }
 #ifdef _WIN32
   if (!hConsole)
     return;
@@ -269,7 +424,7 @@ void internal_set_color(int color_id) {
     case BLOCK_COLOR_WALL:
       color_code = "\033[37m";  // White
       break;
-    case BLOCK_COLOR_DEFAULT:  // fallthrough
+    case BLOCK_COLOR_DEFAULT:
     default:
       color_code = "\033[0m";  // Reset
       break;
@@ -278,90 +433,126 @@ void internal_set_color(int color_id) {
 #endif
 }
 
-void render_set_color_for_cell_value(int cell_value) {
-  if (cell_value == 0) {  // Empty
-    internal_set_color(BLOCK_COLOR_DEFAULT);
-  } else if (cell_value == 1) {  // Wall
-    internal_set_color(BLOCK_COLOR_WALL);
-  } else {  // Actual block (cell_value >= 2)
-    int block_type = cell_value - 2;
-    render_set_color_for_block_type(block_type);
-  }
-}
-
-void render_set_color_for_block_type(int block_type) {
-  if (block_type == -1 &&
-      current_render_mode == RENDER_MODE_UNICODE_BLOCK_ELEMENTS) {
-    internal_set_color(BLOCK_COLOR_WALL);
-    return;
-  }
-  if (block_type == -1 && current_render_mode == RENDER_MODE_ASCII_ONLY) {
-    return;
+/* 블록 유형 또는 셀 값을 색상 ID로 매핑 */
+static int map_block_or_cell_to_color_id(int value, bool is_cell_value) {
+  int block_type_internal;
+  if (is_cell_value) {
+    if (value == 0) {
+      return BLOCK_COLOR_DEFAULT;
+    }
+    if (value == 1) {
+      return BLOCK_COLOR_WALL;
+    }
+    block_type_internal = value - 2;
+  } else {
+    block_type_internal = value;
   }
 
-  switch (block_type) {
+  if (block_type_internal == -1) {
+    return BLOCK_COLOR_WALL;
+  }
+
+  switch (block_type_internal) {
     case I_BLOCK:
-      internal_set_color(BLOCK_COLOR_I);
-      break;
+      return BLOCK_COLOR_I;
     case T_BLOCK:
-      internal_set_color(BLOCK_COLOR_T);
-      break;
+      return BLOCK_COLOR_T;
     case S_BLOCK:
-      internal_set_color(BLOCK_COLOR_S);
-      break;
+      return BLOCK_COLOR_S;
     case Z_BLOCK:
-      internal_set_color(BLOCK_COLOR_Z);
-      break;
+      return BLOCK_COLOR_Z;
     case L_BLOCK:
-      internal_set_color(BLOCK_COLOR_L);
-      break;
+      return BLOCK_COLOR_L;
     case J_BLOCK:
-      internal_set_color(BLOCK_COLOR_J);
-      break;
+      return BLOCK_COLOR_J;
     case O_BLOCK:
-      internal_set_color(BLOCK_COLOR_O);
-      break;
+      return BLOCK_COLOR_O;
     default:
-      internal_set_color(BLOCK_COLOR_DEFAULT);
-      break;
+      return BLOCK_COLOR_DEFAULT;
   }
 }
 
+/* 셀 값 또는 블록 유형에 따라 색상 설정 */
+void render_set_color_for_cell_value(int cell_value) {
+  int color_id = map_block_or_cell_to_color_id(cell_value, true);
+  if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
+    internal_set_background_color(color_id);
+  } else {
+    internal_set_color(color_id);
+  }
+}
+
+/* 블록 유형에 따라 색상 설정 */
+void render_set_color_for_block_type(int block_type) {
+  int color_id = map_block_or_cell_to_color_id(block_type, false);
+  if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
+    internal_set_background_color(color_id);
+  } else {
+    internal_set_color(color_id);
+  }
+}
+
+/* 콘솔 색상 리셋 */
 void render_reset_color(void) {
   internal_set_color(BLOCK_COLOR_DEFAULT);
 }
 
-void render_print_segment_content(int block_type_for_ascii) {
+/* 블록 유형에 따라 콘텐츠 렌더링 */
+void render_print_segment_content(int block_type_for_mode_specific_render) {
   switch (current_render_mode) {
     case RENDER_MODE_UNICODE_BLOCK_ELEMENTS:
       printf("■ ");
+      break;
+    case RENDER_MODE_BACKGROUND_COLOR:
+      printf("  ");
+      break;
+    case RENDER_MODE_EMOJI:
+      if (block_type_for_mode_specific_render == -1) {
+        printf("%s", get_emoji_for_wall());
+      } else {
+        printf("%s",
+               get_emoji_for_block_type(block_type_for_mode_specific_render));
+      }
       break;
     case RENDER_MODE_PLATFORM_COLOR_CODES:
       printf("##");
       break;
     case RENDER_MODE_ASCII_ONLY: {
-      char c = block_type_to_char(block_type_for_ascii);
+      char c = block_type_to_char(block_type_for_mode_specific_render);
       printf("%c%c", c, c);
     } break;
   }
 }
 
+/* 블록 세그먼트 렌더링 */
 void render_print_block_segment(int cell_value) {
   render_set_color_for_cell_value(cell_value);
 
   if (cell_value == 1) {  // Wall
-    if (current_render_mode == RENDER_MODE_ASCII_ONLY) {
-      printf("##");
-    } else if (current_render_mode == RENDER_MODE_UNICODE_BLOCK_ELEMENTS) {
-      printf("■ ");
-    } else {  // RENDER_MODE_PLATFORM_COLOR_CODES
-      printf("##");
+    switch (current_render_mode) {
+      case RENDER_MODE_UNICODE_BLOCK_ELEMENTS:
+        printf("■ ");
+        break;
+      case RENDER_MODE_BACKGROUND_COLOR:
+        printf("  ");
+        break;
+      case RENDER_MODE_EMOJI:
+        printf("%s", get_emoji_for_wall());
+        break;
+      case RENDER_MODE_PLATFORM_COLOR_CODES:
+        printf("##");
+        break;
+      case RENDER_MODE_ASCII_ONLY:
+        printf("##");
+        break;
     }
-  } else {  // Actual block (cell_value >= 2)
+  } else {  // 실제 블록
     int block_type = cell_value - 2;
     render_print_segment_content(block_type);
   }
-  if (current_render_mode != RENDER_MODE_ASCII_ONLY) {
+  if (current_render_mode == RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
+      current_render_mode == RENDER_MODE_PLATFORM_COLOR_CODES ||
+      current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
     render_reset_color();
   }
 }
@@ -369,7 +560,10 @@ void render_print_block_segment(int cell_value) {
 void render_print_preview_segment(int block_type) {
   render_set_color_for_block_type(block_type);
   render_print_segment_content(block_type);
-  if (current_render_mode != RENDER_MODE_ASCII_ONLY) {
+
+  if (current_render_mode == RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
+      current_render_mode == RENDER_MODE_PLATFORM_COLOR_CODES ||
+      current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
     render_reset_color();
   }
 }
