@@ -261,12 +261,13 @@ void display_tetris_table(void) {
 
   // 점수 표시
   printf("\n\t[ SCORE: %" PRIu64 " ]\t\t[ NEXT BLOCK ]\n", point);
+  fflush(stdout);
   // 테이블 그리기
   for (i = 0; i < 21; i++) {
     printf("\t");
     for (j = 0; j < 10; j++) {
       if (tetris_table[i][j] != 0) {
-        printf("＃");
+        render_print_block_segment(tetris_table[i][j]);
       } else {
         // 현재 블록 표시
         int in_block = 0;
@@ -284,9 +285,9 @@ void display_tetris_table(void) {
         }
 
         if (in_block) {
-          printf("＠");
+          render_print_preview_segment(block_number);
         } else {
-          printf("  ");
+          render_print_empty_segment();
         }
       }
     }
@@ -295,9 +296,9 @@ void display_tetris_table(void) {
       printf("\t    ");
       for (j = 0; j < 4; j++) {
         if (next[0][i % 4][j] != 0) {
-          printf("＠");
+          render_print_preview_segment(next_block_number);
         } else {
-          printf("  ");
+          render_print_empty_segment();
         }
       }
     } else if (i == 4) {
@@ -308,9 +309,9 @@ void display_tetris_table(void) {
       if (hold != NULL) {
         for (j = 0; j < 4; j++) {
           if (hold[0][(i - 5) % 4][j] != 0) {
-            printf("＠");
+            render_print_preview_segment(hold_block_number);
           } else {
-            printf("  ");
+            render_print_empty_segment();
           }
         }
       } else {
@@ -390,15 +391,17 @@ int game_start(void) {
   printf("\n\t\tEnter your name: ");
 
   scanf("%s", temp_result.name);
+  CLEAR_INPUT_BUFFER();
 
   temp_result.point = point;
   time_t t = time(NULL);
   temp_result.time = t;
   result_tree->root =
       avl_insert_data(result_tree, result_tree->root, temp_result);
+
   avl_save(result_tree);
+
   printf("\n\t\tPress any key to continue...");
-  getchar();
   getchar();
 
   return 1;
@@ -426,6 +429,7 @@ void search_result(void) {
     case 1:
       printf("\n\t\tEnter name to search: ");
       scanf("%s", name);
+      CLEAR_INPUT_BUFFER();
       found = avl_print_by_name(result_tree->root, name);
       if (!found) {
         printf("\n\t\tNo records found for name: %s\n", name);
@@ -434,6 +438,7 @@ void search_result(void) {
     case 2:
       printf("\n\t\tEnter score to search: ");
       scanf("%" PRIu64, &score);
+      CLEAR_INPUT_BUFFER();
       found = avl_print_by_score(result_tree->root, score);
       if (!found) {
         printf("\n\t\tNo records found for score: %" PRIu64 "\n", score);
@@ -443,6 +448,7 @@ void search_result(void) {
       printf("\n\t\tEnter score range to search (min max): ");
       uint64_t min, max;
       scanf("%" PRIu64 " %" PRIu64, &min, &max);
+      CLEAR_INPUT_BUFFER();
       found = avl_print_score_range(result_tree->root, min, max);
       if (!found) {
         printf("\n\t\tNo records found for score range: %" PRIu64 " - %" PRIu64
@@ -454,12 +460,10 @@ void search_result(void) {
       printf("\n\t\tInvalid choice!\n");
       printf("\n\t\tPress any key to continue...");
       getchar();
-      getchar();
       return;
   }
 
   printf("\n\t\tPress any key to continue...");
-  getchar();
   getchar();
 }
 
@@ -475,14 +479,12 @@ void print_result(void) {
     printf("\n\t\tNo records found!\n");
     printf("\n\t\tPress any key to continue...");
     getchar();
-    getchar();
     return;
   } else {
     count = avl_print_data(node);
   }
   printf("\n\t\tTotal records: %" PRIu64 "\n", count);
   printf("\n\t\tPress any key to continue...");
-  getchar();
   getchar();
 }
 
@@ -503,6 +505,7 @@ int display_menu(void) {
     printf("\n\t\t\t============================");
     printf("\n\t\t\t\t\t SELECT : ");
     scanf("%d", &menu);
+    CLEAR_INPUT_BUFFER();
     if (menu < 1 || menu > 4) {
       continue;
     } else {
@@ -515,6 +518,7 @@ int display_menu(void) {
 /* 메인 함수 */
 int main(void) {
   init_platform();
+  init_rendering_system();
   int menu = 1;
   result_tree = avl_load();
   if (result_tree == NULL) {

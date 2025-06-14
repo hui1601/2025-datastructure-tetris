@@ -1,5 +1,5 @@
-#include <tetris.h>
 #include <conio.h>
+#include <tetris.h>
 #include <windows.h>
 
 static DWORD __old_console_mode = 0;
@@ -49,9 +49,8 @@ void init_platform(void) {
   }
 
   if (!SetConsoleCP(CP_UTF8)) {
-    fprintf(
-        stderr,
-        "Warning: SetConsoleCP(CP_UTF8) failed. Input may not be UTF-8.\n");
+    fprintf(stderr,
+            "Warning: SetConsoleCP(CP_UTF8) failed. Input may not be UTF-8.\n");
     return;
   }
 

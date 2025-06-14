@@ -2,16 +2,17 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
+#include <avl.h>
 #include <ctype.h>
 #include <inttypes.h>
 #include <locale.h>
+#include <rendering.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <avl.h>
 #include <types.h>
 
 /* 왼쪽, 오른쪽, 아래, 회전  */
@@ -36,6 +37,9 @@
 /* 테트리스 테이블 크기 */
 #define TABLE_X 20
 #define TABLE_Y 10
+
+/* 유틸리티 매크로 */
+#define CLEAR_INPUT_BUFFER() while (getchar() != '\n') {}
 
 /* 함수 선언 */
 int display_menu(void);
