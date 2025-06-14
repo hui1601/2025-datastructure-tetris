@@ -20,8 +20,9 @@ void avl_write_nodes(avl_node* node, FILE* file) {
 }
 
 void avl_free_nodes(avl_node* node) {
-  if (node == NULL)
+  if (node == NULL) {
     return;
+  }
   avl_free_nodes(node->left);
   avl_free_nodes(node->right);
   free(node);
@@ -203,14 +204,14 @@ void avl_print_node(avl_node* node) {
          node->data.point, time_str);
 }
 
-/* 중위 순회로 AVL 트리의 데이터를 출력 */
+/* 스코어 큰 순으로 AVL 트리의 데이터를 출력 */
 uint64_t avl_print_data(avl_node* node) {
   if (node == NULL) {
     return 0;
   }
-  uint64_t count = avl_print_data(node->left);
+  uint64_t count = avl_print_data(node->right);
   avl_print_node(node);
-  count += avl_print_data(node->right);
+  count += avl_print_data(node->left);
   return count + 1;
 }
 
@@ -220,12 +221,12 @@ bool avl_print_score_range(avl_node* node, uint64_t min, uint64_t max) {
     return false;
   }
   bool found = false;
-  found |= avl_print_score_range(node->left, min, max);
+  found |= avl_print_score_range(node->right, min, max);
   if (node->data.point >= min && node->data.point <= max) {
     avl_print_node(node);
     found = true;
   }
-  found |= avl_print_score_range(node->right, min, max);
+  found |= avl_print_score_range(node->left, min, max);
   return found;
 }
 
@@ -240,12 +241,12 @@ bool avl_print_by_name(avl_node* node, const char* name) {
     return false;
   }
   bool found = false;
-  found |= avl_print_by_name(node->left, name);
+  found |= avl_print_by_name(node->right, name);
   if (strcmp(node->data.name, name) == 0) {
     avl_print_node(node);
     found = true;
   }
-  found |= avl_print_by_name(node->right, name);
+  found |= avl_print_by_name(node->left, name);
   return found;
 }
 
