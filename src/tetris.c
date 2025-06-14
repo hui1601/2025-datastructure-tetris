@@ -230,27 +230,12 @@ void drop_block(void) {
 void display_tetris_table(void) {
   int i, j;
   const char (*block)[4][4] = set_block(block_number);
+  const char (*next)[4][4] = set_block(next_block_number);
 
   clear_screen();
 
-  // 다음 블록 표시
-  printf("\n\t\t[ NEXT BLOCK ]\n");
-  const char (*next)[4][4] = set_block(next_block_number);
-  for (i = 0; i < 4; i++) {
-    printf("\t\t");
-    for (j = 0; j < 4; j++) {
-      if (next[0][i][j] == 1) {
-        printf("＠");
-      } else {
-        printf("  ");
-      }
-    }
-    printf("\n");
-  }
-
   // 점수 표시
-  printf("\n\t\t[ SCORE: %" PRIu64 " ]\n\n", point);
-
+  printf("\n\t[ SCORE: %" PRIu64 " ]\t\t[ NEXT BLOCK ]\n", point);
   // 테이블 그리기
   for (i = 0; i < 21; i++) {
     printf("\t");
@@ -273,6 +258,17 @@ void display_tetris_table(void) {
         }
 
         if (in_block) {
+          printf("＠");
+        } else {
+          printf("  ");
+        }
+      }
+    }
+    if (i < 4) {
+      // 다음 블록 표시
+      printf("\t    ");
+      for (j = 0; j < 4; j++) {
+        if (next[block_state][i % 4][j] == 1) {
           printf("＠");
         } else {
           printf("  ");
@@ -352,7 +348,8 @@ int game_start(void) {
   temp_result.point = point;
   time_t t = time(NULL);
   temp_result.time = t;
-  result_tree->root = avl_insert_data(result_tree, result_tree->root, temp_result);
+  result_tree->root =
+      avl_insert_data(result_tree, result_tree->root, temp_result);
   avl_save(result_tree);
   printf("\n\t\tPress any key to continue...");
   getchar();
@@ -402,7 +399,9 @@ void search_result(void) {
       scanf("%" PRIu64 " %" PRIu64, &min, &max);
       found = avl_print_score_range(result_tree->root, min, max);
       if (!found) {
-        printf("\n\t\tNo records found for score range: %" PRIu64 " - %" PRIu64 "\n", min, max);
+        printf("\n\t\tNo records found for score range: %" PRIu64 " - %" PRIu64
+               "\n",
+               min, max);
       }
       break;
     default:
@@ -435,7 +434,7 @@ void print_result(void) {
   } else {
     count = avl_print_data(node);
   }
-  printf("\n\t\tTotal records: %"PRIu64"\n", count);
+  printf("\n\t\tTotal records: %" PRIu64 "\n", count);
   printf("\n\t\tPress any key to continue...");
   getchar();
   getchar();
