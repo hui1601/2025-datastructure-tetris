@@ -11,16 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-/* 결과 구조체 */
-typedef struct result {
-  char name[30];
-  uint64_t point;
-  time_t time;
-  int rank;
-} play_result;
-
 #include <avl.h>
+#include <types.h>
 
 /* 왼쪽, 오른쪽, 아래, 회전  */
 #define LEFT 0

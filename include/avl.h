@@ -7,7 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "tetris.h"
+#include <inttypes.h>
+#include <types.h>
 #define AVL_TREE_NAME "play_result.dat"
 #define AVL_TREE_TEMP_NAME "play_result_temp.dat"
 #ifndef MAX
