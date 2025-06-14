@@ -102,7 +102,7 @@ bool check_collision(int cx, int cy, int rotation) {
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
-      if (block[rotation][i][j] == 1) {
+      if (block[rotation][i][j] != 0) {
         int nx = cx + j;
         int ny = cy + i;
 
@@ -110,7 +110,7 @@ bool check_collision(int cx, int cy, int rotation) {
           return true;
         }
 
-        if (tetris_table[ny][nx] == 1) {
+        if (tetris_table[ny][nx] != 0) {
           return true;
         }
       }
@@ -126,8 +126,8 @@ void add_block_to_table(void) {
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
-      if (block[block_state][i][j] == 1) {
-        tetris_table[y + i][x + j] = 1;
+      if (block[block_state][i][j] != 0) {
+        tetris_table[y + i][x + j] = block_number + 2;
       }
     }
   }
@@ -240,7 +240,7 @@ void display_tetris_table(void) {
   for (i = 0; i < 21; i++) {
     printf("\t");
     for (j = 0; j < 10; j++) {
-      if (tetris_table[i][j] == 1) {
+      if (tetris_table[i][j] != 0) {
         printf("＃");
       } else {
         // 현재 블록 표시
@@ -248,13 +248,14 @@ void display_tetris_table(void) {
         int bi, bj;
         for (bi = 0; bi < 4; bi++) {
           for (bj = 0; bj < 4; bj++) {
-            if (block[block_state][bi][bj] == 1 && y + bi == i && x + bj == j) {
+            if (block[block_state][bi][bj] != 0 && y + bi == i && x + bj == j) {
               in_block = 1;
               break;
             }
           }
-          if (in_block)
+          if (in_block) {
             break;
+          }
         }
 
         if (in_block) {
@@ -268,7 +269,7 @@ void display_tetris_table(void) {
       // 다음 블록 표시
       printf("\t    ");
       for (j = 0; j < 4; j++) {
-        if (next[block_state][i % 4][j] == 1) {
+        if (next[block_state][i % 4][j] != 0) {
           printf("＠");
         } else {
           printf("  ");
