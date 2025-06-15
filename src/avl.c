@@ -1,4 +1,16 @@
 #include "avl.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <inttypes.h>
+
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
 static int avl_get_node_height(avl_node* node) {
   if (node == NULL) {
     return 0;

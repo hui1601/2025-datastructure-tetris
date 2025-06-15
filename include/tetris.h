@@ -2,18 +2,7 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
-#include <avl.h>
-#include <ctype.h>
-#include <inttypes.h>
-#include <locale.h>
-#include <rendering.h>
 #include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <types.h>
 
 /* 왼쪽, 오른쪽, 아래, 회전  */
 #define LEFT 0
@@ -39,7 +28,9 @@
 #define TABLE_Y 10
 
 /* 유틸리티 매크로 */
-#define CLEAR_INPUT_BUFFER() while (getchar() != '\n') {}
+#define CLEAR_INPUT_BUFFER()  \
+  while (getchar() != '\n') { \
+  }
 
 /* 함수 선언 */
 int display_menu(void);
@@ -72,4 +63,5 @@ void init_platform(void);
 void init_keyboard(void);
 void close_keyboard(void);
 void platform_usleep(unsigned int microseconds);
+
 #endif  // TETRIS_H

@@ -1,4 +1,15 @@
-#include <tetris.h>
+#include "tetris.h"
+
+#include <ctype.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include "avl.h"
+#include "rendering.h"
 
 const char i_block[4][4][4] = {
     {{1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},

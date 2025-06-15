@@ -1,12 +1,12 @@
-#include <tetris.h>
+#include "tetris.h"
+
 #include <errno.h>
 #include <fcntl.h>
-#include <signal.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <locale.h>
 
 struct termios initial_settings, new_settings;
 

@@ -1,6 +1,11 @@
+#include "tetris.h"
+
 #include <conio.h>
-#include <tetris.h>
 #include <windows.h>
+
+#include <stdio.h>
+#include <locale.h>
+
 
 static DWORD __old_console_mode = 0;
 

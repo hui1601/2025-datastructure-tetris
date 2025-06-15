@@ -2,21 +2,13 @@
 #ifndef RENDERING_H
 #define RENDERING_H
 
-#include "tetris.h"
-#include "types.h"
-
 #define RENDER_CONFIG_FILE "tetris_config.dat"
 
 typedef enum {
-  // "■"+색상 사용
   RENDER_MODE_UNICODE_BLOCK_ELEMENTS,
-  // 배경색만 사용
   RENDER_MODE_BACKGROUND_COLOR,
-  // 이모지 사용
   RENDER_MODE_EMOJI,
-  // "##"+색상 사용
   RENDER_MODE_PLATFORM_COLOR_CODES,
-  // "II", "TT" 등 ASCII art 사용
   RENDER_MODE_ASCII_ONLY,
 } render_mode_t;
 
