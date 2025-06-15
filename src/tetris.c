@@ -55,6 +55,8 @@ int x = 3, y = 0;
 int game = GAME_END;
 uint64_t point = 0;
 avl_tree* result_tree = NULL;
+static int bag[7];
+static int bag_idx = 7;
 
 /* 테트리스 테이블 초기화 */
 void init_tetris_table(void) {
@@ -118,6 +120,28 @@ bool check_collision(int cx, int cy, int rotation) {
     }
   }
   return false;
+}
+
+/* 새로운 블록을 위한 bag 리필 */
+static void refill_bag(void) {
+  for (int i = 0; i < 7; ++i) {
+    bag[i] = i;
+  }
+  for (int i = 6; i > 0; --i) {
+    int j = rand() % (i + 1);
+    int tmp = bag[i];
+    bag[i] = bag[j];
+    bag[j] = tmp;
+  }
+  bag_idx = 0;
+}
+
+/* 다음 블록을 bag에서 가져오기 */
+static int get_next_from_bag(void) {
+  if (bag_idx >= 7) {
+    refill_bag();
+  }
+  return bag[bag_idx++];
 }
 
 /* 블록을 테이블에 추가 */
@@ -199,7 +223,7 @@ void move_block(int direction) {
     clear_lines();
 
     block_number = next_block_number;
-    next_block_number = rand() % 7;
+    next_block_number = get_next_from_bag();
     block_state = 0;
     x = 3;
     y = 0;
@@ -232,7 +256,7 @@ void hold_block(void) {
   if (hold_block_number < 0) {
     hold_block_number = block_number;
     block_number = next_block_number;
-    next_block_number = rand() % 7;
+    next_block_number = get_next_from_bag();
     block_state = 0;
     x = 3;
     y = 0;
@@ -334,9 +358,10 @@ int game_start(void) {
 
   init_keyboard();
   init_tetris_table();
-  srand(time(NULL));
-  block_number = rand() % 7;
-  next_block_number = rand() % 7;
+  srand((unsigned int)time(NULL));
+  refill_bag();
+  block_number = get_next_from_bag();
+  next_block_number = get_next_from_bag();
   hold_block_number = -1;
   block_state = 0;
   x = 3;
