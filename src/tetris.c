@@ -315,6 +315,15 @@ void display_tetris_table(void) {
   if (hold_block_number >= 0) {
     hold = set_block(hold_block_number);
   }
+  int ghost_y = y;
+  if (game == GAME_START) {
+    // 블록이 바닥에 닿을 때까지 아래로 이동
+    while (!check_collision(x, ghost_y + 1, block_state)) {
+      ghost_y++;
+    }
+  } else {
+    ghost_y = -20;
+  }
 
   clear_screen();
 
@@ -328,23 +337,36 @@ void display_tetris_table(void) {
       if (tetris_table[i][j] != 0) {
         render_print_block_segment(tetris_table[i][j]);
       } else {
-        // 현재 블록 표시
-        int in_block = 0;
-        int bi, bj;
-        for (bi = 0; bi < 4; bi++) {
-          for (bj = 0; bj < 4; bj++) {
-            if (block[block_state][bi][bj] != 0 && y + bi == i && x + bj == j) {
-              in_block = 1;
+        bool is_active_segment = false;
+        bool is_ghost_segment = false;
+        for (int bi = 0; bi < 4; bi++) {
+          for (int bj = 0; bj < 4; bj++) {
+            if(block[block_state][bi][bj] != 0 && (y+ bi == i) && (x + bj == j)) {
+              is_active_segment = true;
               break;
             }
           }
-          if (in_block) {
+          if (is_active_segment) {
             break;
           }
         }
-
-        if (in_block) {
+        if(!is_active_segment && game == GAME_START) {
+          for(int bi = 0; bi < 4; bi++) {
+            for (int bj = 0; bj < 4; bj++) {
+              if(block[block_state][bi][bj] != 0 && (ghost_y + bi == i) && (x + bj == j)) {
+                is_ghost_segment = true;
+                break;
+              }
+            }
+            if (is_ghost_segment) {
+              break;
+            }
+          }
+        }
+        if (is_active_segment) {
           render_print_preview_segment(block_number);
+        } else if (is_ghost_segment) {
+          render_print_ghost_segment();
         } else {
           render_print_empty_segment();
         }

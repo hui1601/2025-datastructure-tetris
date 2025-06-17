@@ -96,7 +96,8 @@ render_mode_t load_render_settings(void) {
           RENDER_CONFIG_FILE);
     }
     fclose(f);
-    if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS || mode > RENDER_MODE_ASCII_ONLY) {
+    if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
+        mode > RENDER_MODE_ASCII_ONLY) {
       fprintf(
           stderr,
           "Warning: Invalid render setting %d found in %s, using default.\n",
@@ -158,7 +159,8 @@ void ask_user_for_render_preference(void) {
   print_sample_line("Wall", -1, get_emoji_for_wall());
   printf(
       "\t\t   (Uses emoji like 🟥, ⬛. Requires good Unicode font "
-      "support. Most terminals cannot display full-width emoji correctly.)\n\n");
+      "support. Most terminals cannot display full-width emoji "
+      "correctly.)\n\n");
 
   current_render_mode = RENDER_MODE_PLATFORM_COLOR_CODES;
   printf("\t\t4. Standard Terminal Colors with '##'\n");
@@ -269,6 +271,9 @@ static void internal_set_background_color(int color_id) {
     case BLOCK_COLOR_WALL:
       bg_attribute_bits = BACKGROUND_INTENSITY;
       break;
+    case BLOCK_COLOR_GHOST:
+      bg_attribute_bits = BACKGROUND_INTENSITY;
+      break;
     case BLOCK_COLOR_DEFAULT:
     default:
       SetConsoleTextAttribute(hConsole, original_attributes);
@@ -302,6 +307,9 @@ static void internal_set_background_color(int color_id) {
       break;
     case BLOCK_COLOR_WALL:
       bg_color_code = "\033[47m";  // White BG
+      break;
+    case BLOCK_COLOR_GHOST:
+      bg_color_code = "\033[100m";  // Bright Black BG (Dark Gray BG)
       break;
     case BLOCK_COLOR_DEFAULT:
     default:
@@ -393,6 +401,9 @@ void internal_set_color(int color_id) {
     case BLOCK_COLOR_WALL:
       SetConsoleTextAttribute(hConsole, FOREGROUND_WHITE);
       break;
+    case BLOCK_COLOR_GHOST:
+      SetConsoleTextAttribute(hConsole, FOREGROUND_INTENSITY);
+      break;
     case BLOCK_COLOR_DEFAULT:
     default:
       SetConsoleTextAttribute(hConsole, original_attributes);
@@ -427,6 +438,9 @@ void internal_set_color(int color_id) {
     case BLOCK_COLOR_WALL:
       color_code = "\033[37m";  // White
       break;
+    case BLOCK_COLOR_GHOST:
+      color_code = "\033[90m";  // Bright Black (Dark Gray)
+      break;
     case BLOCK_COLOR_DEFAULT:
     default:
       color_code = "\033[0m";  // Reset
@@ -434,6 +448,35 @@ void internal_set_color(int color_id) {
   }
   printf("%s", color_code);
 #endif
+}
+
+/* 고스트 블록 렌더링 */
+void render_print_ghost_segment(void) {
+  if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
+    internal_set_background_color(BLOCK_COLOR_GHOST);
+  } else {
+    internal_set_color(BLOCK_COLOR_GHOST);
+  }
+  switch (current_render_mode) {
+    case RENDER_MODE_UNICODE_BLOCK_ELEMENTS:
+      printf("▒ ");
+      break;
+    case RENDER_MODE_BACKGROUND_COLOR:
+      printf("  ");
+      break;
+    case RENDER_MODE_EMOJI:
+      printf("▒ ");
+      break;
+    case RENDER_MODE_PLATFORM_COLOR_CODES:
+      printf("::");
+      break;
+    case RENDER_MODE_ASCII_ONLY:
+      printf("..");
+      break;
+  }
+  if (current_render_mode != RENDER_MODE_ASCII_ONLY) {
+    render_reset_color();
+  }
 }
 
 /* 블록 유형 또는 셀 값을 색상 ID로 매핑 */

@@ -23,8 +23,9 @@ extern render_mode_t current_render_mode;
 #define BLOCK_COLOR_J 5
 #define BLOCK_COLOR_O 6
 #define BLOCK_COLOR_WALL 7
-// 나머지 기본 블록 색상
-#define BLOCK_COLOR_DEFAULT 8
+// 나머지 기본 블록 색상 + 특수 색상
+#define BLOCK_COLOR_GHOST 8
+#define BLOCK_COLOR_DEFAULT 9
 
 void init_rendering_system(void);
 void ask_user_for_render_preference(void);
@@ -35,6 +36,7 @@ void render_set_color_for_cell_value(int cell_value);
 void render_reset_color(void);
 void render_print_block_segment(int cell_value);
 void render_print_empty_segment(void);
+void render_print_ghost_segment(void);
 
 void render_set_color_for_block_type(int block_type);
 void render_print_preview_segment(int block_type);
