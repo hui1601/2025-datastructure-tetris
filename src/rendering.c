@@ -22,18 +22,25 @@ char block_type_to_char(int block_type) {
   switch (block_type) {
     case I_BLOCK:
       return 'I';
+
     case T_BLOCK:
       return 'T';
+
     case S_BLOCK:
       return 'S';
+
     case Z_BLOCK:
       return 'Z';
+
     case L_BLOCK:
       return 'L';
+
     case J_BLOCK:
       return 'J';
+
     case O_BLOCK:
       return 'O';
+
     default:
       return ' ';
   }
@@ -44,18 +51,25 @@ const char* get_emoji_for_block_type(int block_type) {
   switch (block_type) {
     case I_BLOCK:
       return "🟫";
+
     case T_BLOCK:
       return "🟪";
+
     case S_BLOCK:
       return "🟩";
+
     case Z_BLOCK:
       return "🟥";
+
     case L_BLOCK:
       return "🟧";
+
     case J_BLOCK:
       return "🟦";
+
     case O_BLOCK:
       return "🟨";
+
     default:
       return "  ";
   }
@@ -95,6 +109,7 @@ render_mode_t load_render_settings(void) {
           "Warning: Could not read render settings from %s, using default.\n",
           RENDER_CONFIG_FILE);
     }
+
     fclose(f);
     if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
         mode > RENDER_MODE_ASCII_ONLY) {
@@ -105,6 +120,7 @@ render_mode_t load_render_settings(void) {
       mode = RENDER_MODE_UNICODE_BLOCK_ELEMENTS;
     }
   }
+
   return mode;
 }
 
@@ -121,11 +137,13 @@ void print_sample_line(const char* mode_name,
     } else {
       printf("%s", get_emoji_for_block_type(block_type_example));
     }
+
   } else {
     render_set_color_for_block_type(block_type_example);
     printf("%s", block_char_override);
     render_reset_color();
   }
+
   printf("\n");
 }
 
@@ -191,18 +209,23 @@ void ask_user_for_render_preference(void) {
     case 1:
       current_render_mode = RENDER_MODE_UNICODE_BLOCK_ELEMENTS;
       break;
+
     case 2:
       current_render_mode = RENDER_MODE_BACKGROUND_COLOR;
       break;
+
     case 3:
       current_render_mode = RENDER_MODE_EMOJI;
       break;
+
     case 4:
       current_render_mode = RENDER_MODE_PLATFORM_COLOR_CODES;
       break;
+
     case 5:
       current_render_mode = RENDER_MODE_ASCII_ONLY;
       break;
+
     default:
       printf("\n\t\tInvalid choice. Using default (Unicode Block Elements).\n");
       current_render_mode = RENDER_MODE_UNICODE_BLOCK_ELEMENTS;
@@ -242,38 +265,49 @@ static void internal_set_background_color(int color_id) {
   }
 
 #ifdef _WIN32
-  if (!hConsole)
+  if (!hConsole) {
     return;
+  }
+
   WORD bg_attribute_bits = 0;
   switch (color_id) {
     case BLOCK_COLOR_I:
       bg_attribute_bits = BACKGROUND_BLUE | BACKGROUND_GREEN;
       break;
+
     case BLOCK_COLOR_L:
       bg_attribute_bits = BACKGROUND_RED | BACKGROUND_GREEN;
       break;
+
     case BLOCK_COLOR_J:
       bg_attribute_bits = BACKGROUND_BLUE;
       break;
+
     case BLOCK_COLOR_S:
       bg_attribute_bits = BACKGROUND_GREEN;
       break;
+
     case BLOCK_COLOR_Z:
       bg_attribute_bits = BACKGROUND_RED;
       break;
+
     case BLOCK_COLOR_T:
       bg_attribute_bits = BACKGROUND_RED | BACKGROUND_BLUE;
       break;
+
     case BLOCK_COLOR_O:
       bg_attribute_bits =
           BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_WALL:
       bg_attribute_bits = BACKGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_GHOST:
       bg_attribute_bits = BACKGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_DEFAULT:
     default:
       SetConsoleTextAttribute(hConsole, original_attributes);
@@ -287,35 +321,45 @@ static void internal_set_background_color(int color_id) {
     case BLOCK_COLOR_I:
       bg_color_code = "\033[106m";  // Bright Cyan BG
       break;
+
     case BLOCK_COLOR_L:
       bg_color_code = "\033[43m";  // Dark Yellow BG (for Orange)
       break;
+
     case BLOCK_COLOR_J:
       bg_color_code = "\033[104m";  // Bright Blue BG
       break;
+
     case BLOCK_COLOR_S:
       bg_color_code = "\033[102m";  // Bright Green BG
       break;
+
     case BLOCK_COLOR_Z:
       bg_color_code = "\033[101m";  // Bright Red BG
       break;
+
     case BLOCK_COLOR_T:
       bg_color_code = "\033[105m";  // Bright Magenta BG
       break;
+
     case BLOCK_COLOR_O:
       bg_color_code = "\033[103m";  // Bright Yellow BG
       break;
+
     case BLOCK_COLOR_WALL:
       bg_color_code = "\033[47m";  // White BG
       break;
+
     case BLOCK_COLOR_GHOST:
       bg_color_code = "\033[100m";  // Bright Black BG (Dark Gray BG)
       break;
+
     case BLOCK_COLOR_DEFAULT:
     default:
       bg_color_code = "\033[49m";  // Reset background to default
       break;
   }
+
   printf("%s", bg_color_code);
 #endif
 }
@@ -326,84 +370,107 @@ void internal_set_color(int color_id) {
       color_id != BLOCK_COLOR_DEFAULT && color_id != BLOCK_COLOR_WALL) {
     return;
   }
+
   if (current_render_mode == RENDER_MODE_EMOJI &&
       color_id != BLOCK_COLOR_DEFAULT) {
     return;
   }
-  if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
-    if (color_id != BLOCK_COLOR_DEFAULT) {
-      return;
-    }
-  }
-#ifdef _WIN32
-  if (!hConsole)
+
+  if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR &&
+      color_id != BLOCK_COLOR_DEFAULT) {
     return;
+  }
+
+#ifdef _WIN32
+  if (!hConsole) {
+    return;
+  }
+
   WORD attribute = original_attributes;
   switch (color_id) {
     case BLOCK_COLOR_I:
       attribute = FOREGROUND_CYAN;
       break;
+
     case BLOCK_COLOR_L:
       attribute = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_J:
       attribute = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_S:
       attribute = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_Z:
       attribute = FOREGROUND_RED | FOREGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_T:
       attribute = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
       break;
+
     case BLOCK_COLOR_O:
       attribute = FOREGROUND_RED | FOREGROUND_GREEN;
       break;
+
     case BLOCK_COLOR_WALL:
       attribute = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
       break;
+
     case BLOCK_COLOR_DEFAULT:
     default:
       attribute = original_attributes;
       break;
   }
+
   if (color_id != BLOCK_COLOR_DEFAULT && color_id != BLOCK_COLOR_WALL) {
     attribute = (original_attributes & 0xF0) | (attribute & 0x0F);
   } else if (color_id == BLOCK_COLOR_WALL) {
     attribute = (original_attributes & 0xF0) |
                 (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
   }
+
   switch (color_id) {
     case BLOCK_COLOR_I:
       SetConsoleTextAttribute(hConsole, FOREGROUND_CYAN | FOREGROUND_INTENSITY);
       break;
+
     case BLOCK_COLOR_L:
       SetConsoleTextAttribute(hConsole, FOREGROUND_YELLOW);
       break;
+
     case BLOCK_COLOR_J:
       SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE);
       break;
+
     case BLOCK_COLOR_S:
       SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
       break;
+
     case BLOCK_COLOR_Z:
       SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
       break;
+
     case BLOCK_COLOR_T:
       SetConsoleTextAttribute(hConsole, FOREGROUND_MAGENTA);
       break;
+
     case BLOCK_COLOR_O:
       SetConsoleTextAttribute(hConsole,
                               FOREGROUND_YELLOW | FOREGROUND_INTENSITY);
       break;
+
     case BLOCK_COLOR_WALL:
       SetConsoleTextAttribute(hConsole, FOREGROUND_WHITE);
       break;
+
     case BLOCK_COLOR_GHOST:
       SetConsoleTextAttribute(hConsole, FOREGROUND_INTENSITY);
       break;
+
     case BLOCK_COLOR_DEFAULT:
     default:
       SetConsoleTextAttribute(hConsole, original_attributes);
@@ -417,35 +484,45 @@ void internal_set_color(int color_id) {
     case BLOCK_COLOR_I:
       color_code = "\033[96m";  // Bright Cyan
       break;
+
     case BLOCK_COLOR_L:
       color_code = "\033[33m";  // Dark Yellow (for Orange)
       break;
+
     case BLOCK_COLOR_J:
       color_code = "\033[94m";  // Bright Blue
       break;
+
     case BLOCK_COLOR_S:
       color_code = "\033[92m";  // Bright Green
       break;
+
     case BLOCK_COLOR_Z:
       color_code = "\033[91m";  // Bright Red
       break;
+
     case BLOCK_COLOR_T:
       color_code = "\033[95m";  // Bright Magenta
       break;
+
     case BLOCK_COLOR_O:
       color_code = "\033[93m";  // Bright Yellow
       break;
+
     case BLOCK_COLOR_WALL:
       color_code = "\033[37m";  // White
       break;
+
     case BLOCK_COLOR_GHOST:
       color_code = "\033[90m";  // Bright Black (Dark Gray)
       break;
+
     case BLOCK_COLOR_DEFAULT:
     default:
       color_code = "\033[0m";  // Reset
       break;
   }
+
   printf("%s", color_code);
 #endif
 }
@@ -457,23 +534,29 @@ void render_print_ghost_segment(void) {
   } else {
     internal_set_color(BLOCK_COLOR_GHOST);
   }
+
   switch (current_render_mode) {
     case RENDER_MODE_UNICODE_BLOCK_ELEMENTS:
       printf("▒ ");
       break;
+
     case RENDER_MODE_BACKGROUND_COLOR:
       printf("  ");
       break;
+
     case RENDER_MODE_EMOJI:
       printf("▒ ");
       break;
+
     case RENDER_MODE_PLATFORM_COLOR_CODES:
       printf("::");
       break;
+
     case RENDER_MODE_ASCII_ONLY:
       printf("..");
       break;
   }
+
   if (current_render_mode != RENDER_MODE_ASCII_ONLY) {
     render_reset_color();
   }
@@ -486,9 +569,11 @@ static int map_block_or_cell_to_color_id(int value, bool is_cell_value) {
     if (value == 0) {
       return BLOCK_COLOR_DEFAULT;
     }
+
     if (value == 1) {
       return BLOCK_COLOR_WALL;
     }
+
     block_type_internal = value - 2;
   } else {
     block_type_internal = value;
@@ -501,18 +586,25 @@ static int map_block_or_cell_to_color_id(int value, bool is_cell_value) {
   switch (block_type_internal) {
     case I_BLOCK:
       return BLOCK_COLOR_I;
+
     case T_BLOCK:
       return BLOCK_COLOR_T;
+
     case S_BLOCK:
       return BLOCK_COLOR_S;
+
     case Z_BLOCK:
       return BLOCK_COLOR_Z;
+
     case L_BLOCK:
       return BLOCK_COLOR_L;
+
     case J_BLOCK:
       return BLOCK_COLOR_J;
+
     case O_BLOCK:
       return BLOCK_COLOR_O;
+
     default:
       return BLOCK_COLOR_DEFAULT;
   }
@@ -549,9 +641,11 @@ void render_print_segment_content(int block_type_for_mode_specific_render) {
     case RENDER_MODE_UNICODE_BLOCK_ELEMENTS:
       printf("■ ");
       break;
+
     case RENDER_MODE_BACKGROUND_COLOR:
       printf("  ");
       break;
+
     case RENDER_MODE_EMOJI:
       if (block_type_for_mode_specific_render == -1) {
         printf("%s", get_emoji_for_wall());
@@ -560,9 +654,11 @@ void render_print_segment_content(int block_type_for_mode_specific_render) {
                get_emoji_for_block_type(block_type_for_mode_specific_render));
       }
       break;
+
     case RENDER_MODE_PLATFORM_COLOR_CODES:
       printf("##");
       break;
+
     case RENDER_MODE_ASCII_ONLY: {
       char c = block_type_to_char(block_type_for_mode_specific_render);
       printf("%c%c", c, c);
@@ -579,15 +675,19 @@ void render_print_block_segment(int cell_value) {
       case RENDER_MODE_UNICODE_BLOCK_ELEMENTS:
         printf("■ ");
         break;
+
       case RENDER_MODE_BACKGROUND_COLOR:
         printf("  ");
         break;
+
       case RENDER_MODE_EMOJI:
         printf("%s", get_emoji_for_wall());
         break;
+
       case RENDER_MODE_PLATFORM_COLOR_CODES:
         printf("##");
         break;
+
       case RENDER_MODE_ASCII_ONLY:
         printf("##");
         break;
@@ -596,6 +696,7 @@ void render_print_block_segment(int cell_value) {
     int block_type = cell_value - 2;
     render_print_segment_content(block_type);
   }
+
   if (current_render_mode == RENDER_MODE_UNICODE_BLOCK_ELEMENTS ||
       current_render_mode == RENDER_MODE_PLATFORM_COLOR_CODES ||
       current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {

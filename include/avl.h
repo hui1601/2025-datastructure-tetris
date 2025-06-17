@@ -28,11 +28,11 @@ avl_node* avl_find_min(avl_node* node);
 avl_node* avl_find_max(avl_node* node);
 void avl_save(avl_tree* tree);
 avl_tree* avl_load(void);
-uint64_t avl_print_data(avl_node* node);
-void avl_print_node(avl_node* node);
-bool avl_print_score_range(avl_node* node, uint64_t min, uint64_t max);
-bool avl_print_by_score(avl_node* node, uint64_t score);
-bool avl_print_by_name(avl_node* node, const char* name);
+uint64_t avl_print_data(avl_node* node, uint64_t* rank_val_ptr);
+void avl_print_node(avl_node* node, uint64_t rank);
+bool avl_print_score_range(avl_node* node, uint64_t min, uint64_t max, uint64_t* rank_val_ptr);
+bool avl_print_by_score(avl_node* node, uint64_t score, uint64_t* rank_val_ptr);
+bool avl_print_by_name(avl_node* node, const char* name, uint64_t* rank_val_ptr);
 avl_node* avl_rotate_left(avl_node* z);
 avl_node* avl_rotate_right(avl_node* z);
 #endif  // AVL_H
