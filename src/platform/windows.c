@@ -3,9 +3,8 @@
 #include <conio.h>
 #include <windows.h>
 
-#include <stdio.h>
 #include <locale.h>
-
+#include <stdio.h>
 
 static DWORD __old_console_mode = 0;
 

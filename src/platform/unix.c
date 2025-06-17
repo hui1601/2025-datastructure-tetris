@@ -2,11 +2,11 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <locale.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <locale.h>
 
 struct termios initial_settings, new_settings;
 
