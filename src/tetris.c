@@ -93,7 +93,7 @@ const char (*set_block(int block_num))[4][4] {
   switch (block_num) {
     case I_BLOCK:
       return i_block;
-      
+
     case T_BLOCK:
       return t_block;
 
@@ -668,15 +668,26 @@ int main(void) {
   while (menu) {
     menu = display_menu();
 
-    if (menu == 1) {
-      game = GAME_START;
-      menu = game_start();
-    } else if (menu == 2) {
-      search_result();
-    } else if (menu == 3) {
-      print_result();
-    } else if (menu == 4) {
-      break;
+    switch (menu) {
+      case 1:
+        game = GAME_START;
+        menu = game_start();
+        break;
+
+      case 2:
+        search_result();
+        break;
+
+      case 3:
+        print_result();
+        break;
+
+      case 4:
+        break;
+
+      default:
+        printf("\n\t\tInvalid choice! Please try again.\n");
+        break;
     }
   }
   avl_save(result_tree);
