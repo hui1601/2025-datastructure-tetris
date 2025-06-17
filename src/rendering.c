@@ -96,7 +96,7 @@ render_mode_t load_render_settings(void) {
           RENDER_CONFIG_FILE);
     }
     fclose(f);
-    if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS || mode > RENDER_MODE_EMOJI) {
+    if (mode < RENDER_MODE_UNICODE_BLOCK_ELEMENTS || mode > RENDER_MODE_ASCII_ONLY) {
       fprintf(
           stderr,
           "Warning: Invalid render setting %d found in %s, using default.\n",
