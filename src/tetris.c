@@ -668,7 +668,7 @@ int display_menu(void) {
 /* 메인 함수 */
 int main(void) {
   init_platform();
-  init_rendering_system();
+  render_init();
   int menu = 1;
   result_tree = avl_load();
   if (result_tree == NULL) {

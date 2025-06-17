@@ -15,22 +15,22 @@ typedef enum {
 extern render_mode_t current_render_mode;
 
 // 블록 색상 정의(실제 색상은 플랫폼 정의)
-#define BLOCK_COLOR_I 0
-#define BLOCK_COLOR_T 1
-#define BLOCK_COLOR_S 2
-#define BLOCK_COLOR_Z 3
-#define BLOCK_COLOR_L 4
-#define BLOCK_COLOR_J 5
-#define BLOCK_COLOR_O 6
-#define BLOCK_COLOR_WALL 7
+#define RENDER_BLOCK_COLOR_I 0
+#define RENDER_BLOCK_COLOR_T 1
+#define RENDER_BLOCK_COLOR_S 2
+#define RENDER_BLOCK_COLOR_Z 3
+#define RENDER_BLOCK_COLOR_L 4
+#define RENDER_BLOCK_COLOR_J 5
+#define RENDER_BLOCK_COLOR_O 6
+#define RENDER_BLOCK_COLOR_WALL 7
 // 나머지 기본 블록 색상 + 특수 색상
-#define BLOCK_COLOR_GHOST 8
-#define BLOCK_COLOR_DEFAULT 9
+#define RENDER_BLOCK_COLOR_GHOST 8
+#define RENDER_BLOCK_COLOR_DEFAULT 9
 
-void init_rendering_system(void);
-void ask_user_for_render_preference(void);
-void save_render_settings(render_mode_t mode);
-render_mode_t load_render_settings(void);
+void render_init(void);
+void render_ask_user_preference(void);
+void render_save_settings(render_mode_t mode);
+render_mode_t render_load_settings(void);
 
 void render_set_color_for_cell_value(int cell_value);
 void render_reset_color(void);

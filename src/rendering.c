@@ -76,12 +76,12 @@ const char* get_emoji_for_block_type(int block_type) {
 }
 
 /* 벽에 해당하는 이모지 문자열 반환 */
-const char* get_emoji_for_wall(void) {
+static const char* get_emoji_for_wall(void) {
   return "⬛";  // Black Square for Wall
 }
 
 /* 렌더링 설정 저장 */
-void save_render_settings(render_mode_t mode) {
+void render_save_settings(render_mode_t mode) {
   FILE* f = fopen(RENDER_CONFIG_FILE, "wb");
   if (f) {
     fwrite(&mode, sizeof(render_mode_t), 1, f);
@@ -93,7 +93,7 @@ void save_render_settings(render_mode_t mode) {
 }
 
 /* 렌더링 설정 불러오기 */
-render_mode_t load_render_settings(void) {
+render_mode_t render_load_settings(void) {
   render_mode_t mode = RENDER_MODE_UNICODE_BLOCK_ELEMENTS;
   FILE* f = fopen(RENDER_CONFIG_FILE, "rb");
   if (f) {
@@ -120,7 +120,7 @@ render_mode_t load_render_settings(void) {
 }
 
 /* 콘솔 색상 설정 */
-void print_sample_line(const char* mode_name,
+static void print_sample_line(const char* mode_name,
                        int block_type_example,
                        const char* block_char_override) {
   printf("\t\t    %s Example: ", mode_name);
@@ -143,7 +143,7 @@ void print_sample_line(const char* mode_name,
 }
 
 /* 사용자에게 렌더링 모드 선택 요청 */
-void ask_user_for_render_preference(void) {
+void render_ask_user_preference(void) {
   int choice = -1;
   render_mode_t old_mode = current_render_mode;
 
@@ -227,11 +227,11 @@ void ask_user_for_render_preference(void) {
       platform_usleep(2000000);
       break;
   }
-  save_render_settings(current_render_mode);
+  render_save_settings(current_render_mode);
 }
 
 /* 콘솔 색상 초기화 및 렌더링 시스템 초기화 */
-void init_rendering_system(void) {
+void render_init(void) {
 #ifdef _WIN32
   hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hConsole != INVALID_HANDLE_VALUE) {
@@ -243,10 +243,10 @@ void init_rendering_system(void) {
 
   FILE* f = fopen(RENDER_CONFIG_FILE, "rb");
   if (f) {
-    current_render_mode = load_render_settings();
+    current_render_mode = render_load_settings();
     fclose(f);
   } else {
-    ask_user_for_render_preference();
+    render_ask_user_preference();
   }
 }
 
@@ -266,44 +266,44 @@ static void internal_set_background_color(int color_id) {
 
   WORD bg_attribute_bits = 0;
   switch (color_id) {
-    case BLOCK_COLOR_I:
+    case RENDER_BLOCK_COLOR_I:
       bg_attribute_bits = BACKGROUND_BLUE | BACKGROUND_GREEN;
       break;
 
-    case BLOCK_COLOR_L:
+    case RENDER_BLOCK_COLOR_L:
       bg_attribute_bits = BACKGROUND_RED | BACKGROUND_GREEN;
       break;
 
-    case BLOCK_COLOR_J:
+    case RENDER_BLOCK_COLOR_J:
       bg_attribute_bits = BACKGROUND_BLUE;
       break;
 
-    case BLOCK_COLOR_S:
+    case RENDER_BLOCK_COLOR_S:
       bg_attribute_bits = BACKGROUND_GREEN;
       break;
 
-    case BLOCK_COLOR_Z:
+    case RENDER_BLOCK_COLOR_Z:
       bg_attribute_bits = BACKGROUND_RED;
       break;
 
-    case BLOCK_COLOR_T:
+    case RENDER_BLOCK_COLOR_T:
       bg_attribute_bits = BACKGROUND_RED | BACKGROUND_BLUE;
       break;
 
-    case BLOCK_COLOR_O:
+    case RENDER_BLOCK_COLOR_O:
       bg_attribute_bits =
           BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_WALL:
+    case RENDER_BLOCK_COLOR_WALL:
       bg_attribute_bits = BACKGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_GHOST:
+    case RENDER_BLOCK_COLOR_GHOST:
       bg_attribute_bits = BACKGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_DEFAULT:
+    case RENDER_BLOCK_COLOR_DEFAULT:
     default:
       SetConsoleTextAttribute(hConsole, original_attributes);
       return;
@@ -313,43 +313,43 @@ static void internal_set_background_color(int color_id) {
 #else  // Unix-like systems
   const char* bg_color_code;
   switch (color_id) {
-    case BLOCK_COLOR_I:
+    case RENDER_BLOCK_COLOR_I:
       bg_color_code = "\033[106m";  // Bright Cyan BG
       break;
 
-    case BLOCK_COLOR_L:
+    case RENDER_BLOCK_COLOR_L:
       bg_color_code = "\033[43m";  // Dark Yellow BG (for Orange)
       break;
 
-    case BLOCK_COLOR_J:
+    case RENDER_BLOCK_COLOR_J:
       bg_color_code = "\033[104m";  // Bright Blue BG
       break;
 
-    case BLOCK_COLOR_S:
+    case RENDER_BLOCK_COLOR_S:
       bg_color_code = "\033[102m";  // Bright Green BG
       break;
 
-    case BLOCK_COLOR_Z:
+    case RENDER_BLOCK_COLOR_Z:
       bg_color_code = "\033[101m";  // Bright Red BG
       break;
 
-    case BLOCK_COLOR_T:
+    case RENDER_BLOCK_COLOR_T:
       bg_color_code = "\033[105m";  // Bright Magenta BG
       break;
 
-    case BLOCK_COLOR_O:
+    case RENDER_BLOCK_COLOR_O:
       bg_color_code = "\033[103m";  // Bright Yellow BG
       break;
 
-    case BLOCK_COLOR_WALL:
+    case RENDER_BLOCK_COLOR_WALL:
       bg_color_code = "\033[47m";  // White BG
       break;
 
-    case BLOCK_COLOR_GHOST:
+    case RENDER_BLOCK_COLOR_GHOST:
       bg_color_code = "\033[100m";  // Bright Black BG (Dark Gray BG)
       break;
 
-    case BLOCK_COLOR_DEFAULT:
+    case RENDER_BLOCK_COLOR_DEFAULT:
     default:
       bg_color_code = "\033[49m";  // Reset background to default
       break;
@@ -360,19 +360,19 @@ static void internal_set_background_color(int color_id) {
 }
 
 /* 콘솔 색상 설정 */
-void internal_set_color(int color_id) {
+static void internal_set_color(int color_id) {
   if (current_render_mode == RENDER_MODE_ASCII_ONLY &&
-      color_id != BLOCK_COLOR_DEFAULT && color_id != BLOCK_COLOR_WALL) {
+      color_id != RENDER_BLOCK_COLOR_DEFAULT && color_id != RENDER_BLOCK_COLOR_WALL) {
     return;
   }
 
   if (current_render_mode == RENDER_MODE_EMOJI &&
-      color_id != BLOCK_COLOR_DEFAULT) {
+      color_id != RENDER_BLOCK_COLOR_DEFAULT) {
     return;
   }
 
   if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR &&
-      color_id != BLOCK_COLOR_DEFAULT) {
+      color_id != RENDER_BLOCK_COLOR_DEFAULT) {
     return;
   }
 
@@ -383,90 +383,90 @@ void internal_set_color(int color_id) {
 
   WORD attribute = original_attributes;
   switch (color_id) {
-    case BLOCK_COLOR_I:
+    case RENDER_BLOCK_COLOR_I:
       attribute = FOREGROUND_CYAN;
       break;
 
-    case BLOCK_COLOR_L:
+    case RENDER_BLOCK_COLOR_L:
       attribute = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_J:
+    case RENDER_BLOCK_COLOR_J:
       attribute = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_S:
+    case RENDER_BLOCK_COLOR_S:
       attribute = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_Z:
+    case RENDER_BLOCK_COLOR_Z:
       attribute = FOREGROUND_RED | FOREGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_T:
+    case RENDER_BLOCK_COLOR_T:
       attribute = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
       break;
 
-    case BLOCK_COLOR_O:
+    case RENDER_BLOCK_COLOR_O:
       attribute = FOREGROUND_RED | FOREGROUND_GREEN;
       break;
 
-    case BLOCK_COLOR_WALL:
+    case RENDER_BLOCK_COLOR_WALL:
       attribute = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
       break;
 
-    case BLOCK_COLOR_DEFAULT:
+    case RENDER_BLOCK_COLOR_DEFAULT:
     default:
       attribute = original_attributes;
       break;
   }
 
-  if (color_id != BLOCK_COLOR_DEFAULT && color_id != BLOCK_COLOR_WALL) {
+  if (color_id != RENDER_BLOCK_COLOR_DEFAULT && color_id != RENDER_BLOCK_COLOR_WALL) {
     attribute = (original_attributes & 0xF0) | (attribute & 0x0F);
-  } else if (color_id == BLOCK_COLOR_WALL) {
+  } else if (color_id == RENDER_BLOCK_COLOR_WALL) {
     attribute = (original_attributes & 0xF0) |
                 (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
   }
 
   switch (color_id) {
-    case BLOCK_COLOR_I:
+    case RENDER_BLOCK_COLOR_I:
       SetConsoleTextAttribute(hConsole, FOREGROUND_CYAN | FOREGROUND_INTENSITY);
       break;
 
-    case BLOCK_COLOR_L:
+    case RENDER_BLOCK_COLOR_L:
       SetConsoleTextAttribute(hConsole, FOREGROUND_YELLOW);
       break;
 
-    case BLOCK_COLOR_J:
+    case RENDER_BLOCK_COLOR_J:
       SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE);
       break;
 
-    case BLOCK_COLOR_S:
+    case RENDER_BLOCK_COLOR_S:
       SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
       break;
 
-    case BLOCK_COLOR_Z:
+    case RENDER_BLOCK_COLOR_Z:
       SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
       break;
 
-    case BLOCK_COLOR_T:
+    case RENDER_BLOCK_COLOR_T:
       SetConsoleTextAttribute(hConsole, FOREGROUND_MAGENTA);
       break;
 
-    case BLOCK_COLOR_O:
+    case RENDER_BLOCK_COLOR_O:
       SetConsoleTextAttribute(hConsole,
                               FOREGROUND_YELLOW | FOREGROUND_INTENSITY);
       break;
 
-    case BLOCK_COLOR_WALL:
+    case RENDER_BLOCK_COLOR_WALL:
       SetConsoleTextAttribute(hConsole, FOREGROUND_WHITE);
       break;
 
-    case BLOCK_COLOR_GHOST:
+    case RENDER_BLOCK_COLOR_GHOST:
       SetConsoleTextAttribute(hConsole, FOREGROUND_INTENSITY);
       break;
 
-    case BLOCK_COLOR_DEFAULT:
+    case RENDER_BLOCK_COLOR_DEFAULT:
     default:
       SetConsoleTextAttribute(hConsole, original_attributes);
       break;
@@ -476,43 +476,43 @@ void internal_set_color(int color_id) {
   // Unix-like systems
   const char* color_code = "\033[0m";
   switch (color_id) {
-    case BLOCK_COLOR_I:
+    case RENDER_BLOCK_COLOR_I:
       color_code = "\033[96m";  // Bright Cyan
       break;
 
-    case BLOCK_COLOR_L:
+    case RENDER_BLOCK_COLOR_L:
       color_code = "\033[33m";  // Dark Yellow (for Orange)
       break;
 
-    case BLOCK_COLOR_J:
+    case RENDER_BLOCK_COLOR_J:
       color_code = "\033[94m";  // Bright Blue
       break;
 
-    case BLOCK_COLOR_S:
+    case RENDER_BLOCK_COLOR_S:
       color_code = "\033[92m";  // Bright Green
       break;
 
-    case BLOCK_COLOR_Z:
+    case RENDER_BLOCK_COLOR_Z:
       color_code = "\033[91m";  // Bright Red
       break;
 
-    case BLOCK_COLOR_T:
+    case RENDER_BLOCK_COLOR_T:
       color_code = "\033[95m";  // Bright Magenta
       break;
 
-    case BLOCK_COLOR_O:
+    case RENDER_BLOCK_COLOR_O:
       color_code = "\033[93m";  // Bright Yellow
       break;
 
-    case BLOCK_COLOR_WALL:
+    case RENDER_BLOCK_COLOR_WALL:
       color_code = "\033[37m";  // White
       break;
 
-    case BLOCK_COLOR_GHOST:
+    case RENDER_BLOCK_COLOR_GHOST:
       color_code = "\033[90m";  // Bright Black (Dark Gray)
       break;
 
-    case BLOCK_COLOR_DEFAULT:
+    case RENDER_BLOCK_COLOR_DEFAULT:
     default:
       color_code = "\033[0m";  // Reset
       break;
@@ -525,9 +525,9 @@ void internal_set_color(int color_id) {
 /* 고스트 블록 렌더링 */
 void render_print_ghost_segment(void) {
   if (current_render_mode == RENDER_MODE_BACKGROUND_COLOR) {
-    internal_set_background_color(BLOCK_COLOR_GHOST);
+    internal_set_background_color(RENDER_BLOCK_COLOR_GHOST);
   } else {
-    internal_set_color(BLOCK_COLOR_GHOST);
+    internal_set_color(RENDER_BLOCK_COLOR_GHOST);
   }
 
   switch (current_render_mode) {
@@ -562,11 +562,11 @@ static int map_block_or_cell_to_color_id(int value, bool is_cell_value) {
   int block_type_internal;
   if (is_cell_value) {
     if (value == 0) {
-      return BLOCK_COLOR_DEFAULT;
+      return RENDER_BLOCK_COLOR_DEFAULT;
     }
 
     if (value == 1) {
-      return BLOCK_COLOR_WALL;
+      return RENDER_BLOCK_COLOR_WALL;
     }
 
     block_type_internal = value - 2;
@@ -575,33 +575,33 @@ static int map_block_or_cell_to_color_id(int value, bool is_cell_value) {
   }
 
   if (block_type_internal == -1) {
-    return BLOCK_COLOR_WALL;
+    return RENDER_BLOCK_COLOR_WALL;
   }
 
   switch (block_type_internal) {
     case I_BLOCK:
-      return BLOCK_COLOR_I;
+      return RENDER_BLOCK_COLOR_I;
 
     case T_BLOCK:
-      return BLOCK_COLOR_T;
+      return RENDER_BLOCK_COLOR_T;
 
     case S_BLOCK:
-      return BLOCK_COLOR_S;
+      return RENDER_BLOCK_COLOR_S;
 
     case Z_BLOCK:
-      return BLOCK_COLOR_Z;
+      return RENDER_BLOCK_COLOR_Z;
 
     case L_BLOCK:
-      return BLOCK_COLOR_L;
+      return RENDER_BLOCK_COLOR_L;
 
     case J_BLOCK:
-      return BLOCK_COLOR_J;
+      return RENDER_BLOCK_COLOR_J;
 
     case O_BLOCK:
-      return BLOCK_COLOR_O;
+      return RENDER_BLOCK_COLOR_O;
 
     default:
-      return BLOCK_COLOR_DEFAULT;
+      return RENDER_BLOCK_COLOR_DEFAULT;
   }
 }
 
@@ -627,7 +627,7 @@ void render_set_color_for_block_type(int block_type) {
 
 /* 콘솔 색상 리셋 */
 void render_reset_color(void) {
-  internal_set_color(BLOCK_COLOR_DEFAULT);
+  internal_set_color(RENDER_BLOCK_COLOR_DEFAULT);
 }
 
 /* 블록 유형에 따라 콘텐츠 렌더링 */
