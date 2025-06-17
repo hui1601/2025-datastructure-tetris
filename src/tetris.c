@@ -614,7 +614,7 @@ void search_result(void) {
 void print_result(void) {
   clear_screen();
   uint64_t count = 0;
-  printf("\n\n\t\t[ ALL GAME RECORDS - RANKED ]\n");
+  printf("\n\n\t\t[ ALL GAME RECORDS ]\n");
   printf(
       "\t\t=================================================================="
       "\n");
@@ -697,7 +697,12 @@ int main(void) {
 
       default:
         printf("\n\t\tInvalid choice! Please try again.\n");
+        printf("\n\t\tPress any key to continue...");
+        getchar();
         break;
+    }
+    if (menu == 4) {
+      break;
     }
   }
   avl_save(result_tree);
