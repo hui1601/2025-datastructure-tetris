@@ -202,7 +202,8 @@ int clear_lines(void) {
 
   // 점수 계산
   if (lines_cleared > 0) {
-    point += lines_cleared * 100;
+    // 점수 계산: 100점 + (라인 수 * 라인 수 * 50점)
+    point += lines_cleared * 100 + (lines_cleared * lines_cleared * 50);
   }
 
   return lines_cleared;
