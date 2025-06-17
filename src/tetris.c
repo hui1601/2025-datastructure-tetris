@@ -706,5 +706,8 @@ int main(void) {
     }
   }
   avl_save(result_tree);
+  avl_destroy_tree(result_tree);
+  clear_screen();
+  printf("\n\t\tThank you for playing Text Tetris!\n");
   return 0;
 }

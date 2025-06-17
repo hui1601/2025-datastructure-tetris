@@ -80,11 +80,6 @@ const char* get_emoji_for_wall(void) {
   return "⬛";  // Black Square for Wall
 }
 
-/* 빈 공간에 해당하는 공백 문자열 반환 */
-const char* get_emoji_for_empty(void) {
-  return "  ";
-}
-
 /* 렌더링 설정 저장 */
 void save_render_settings(render_mode_t mode) {
   FILE* f = fopen(RENDER_CONFIG_FILE, "wb");
