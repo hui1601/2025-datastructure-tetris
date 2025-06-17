@@ -341,7 +341,8 @@ void display_tetris_table(void) {
         bool is_ghost_segment = false;
         for (int bi = 0; bi < 4; bi++) {
           for (int bj = 0; bj < 4; bj++) {
-            if(block[block_state][bi][bj] != 0 && (y+ bi == i) && (x + bj == j)) {
+            if (block[block_state][bi][bj] != 0 && (y + bi == i) &&
+                (x + bj == j)) {
               is_active_segment = true;
               break;
             }
@@ -350,10 +351,11 @@ void display_tetris_table(void) {
             break;
           }
         }
-        if(!is_active_segment && game == GAME_START) {
-          for(int bi = 0; bi < 4; bi++) {
+        if (!is_active_segment && game == GAME_START) {
+          for (int bi = 0; bi < 4; bi++) {
             for (int bj = 0; bj < 4; bj++) {
-              if(block[block_state][bi][bj] != 0 && (ghost_y + bi == i) && (x + bj == j)) {
+              if (block[block_state][bi][bj] != 0 && (ghost_y + bi == i) &&
+                  (x + bj == j)) {
                 is_ghost_segment = true;
                 break;
               }
@@ -484,6 +486,15 @@ int game_start(void) {
       avl_insert_data(result_tree, result_tree->root, temp_result);
 
   avl_save(result_tree);
+  avl_node* top_node = avl_find_max(result_tree->root);
+  if (top_node != NULL && top_node->data.point == point) {
+    printf(
+        "\n\t\tCongratulations %s! You've achieved the highest score!%" PRIu64
+        " points!\n",
+        top_node->data.name, top_node->data.point);
+  } else {
+    printf("\n\t\tYou have been added to the score list.\n");
+  }
 
   printf("\n\t\tPress any key to continue...");
   getchar();
