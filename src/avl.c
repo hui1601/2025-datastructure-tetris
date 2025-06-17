@@ -210,7 +210,7 @@ avl_tree* avl_load(void) {
 void avl_print_node(avl_node* node, uint64_t rank) {
   printf("\t\t");
   if (node == NULL) {
-    printf("\t\t%-8s %-20s %-10s %-20s\n", "-", "NULL NODE", "-", "N/A");
+    printf("%-8s %-20s %-10s %-25s\n", "-", "NULL NODE", "-", "N/A");
     return;
   }
   char time_display_str[30];
@@ -230,7 +230,7 @@ void avl_print_node(avl_node* node, uint64_t rank) {
   char name_buffer[31];
   strncpy(name_buffer, node->data.name, sizeof(name_buffer) - 1);
   name_buffer[sizeof(name_buffer) - 1] = '\0';
-  printf("\t\t%-8" PRIu64 " %-20.20s %-10" PRIu64 " %s\n", rank, name_buffer,
+  printf("%-8" PRIu64 " %-20.20s %-10" PRIu64 " %-25.25s\n", rank, name_buffer,
          node->data.point, time_display_str);
 }
 

@@ -539,10 +539,12 @@ void search_result(void) {
       clear_screen();
       printf("\n\n\t\t[ SEARCH RESULT BY NAME: %s ]\n", name);
       printf(
-          "\t\t============================================================\n");
-      printf("\t\t%-8s %-20s %-10s %-20s\n", "RANK", "NAME", "SCORE", "DATE");
+          "\t\t================================================================"
+          "==\n");
+      printf("\t\t%-8s %-20s %-10s %-25s\n", "RANK", "NAME", "SCORE", "DATE");
       printf(
-          "\t\t------------------------------------------------------------\n");
+          "\t\t----------------------------------------------------------------"
+          "--\n");
       uint64_t rank_for_name_search = 1;
       found = avl_print_by_name(result_tree->root, name, &rank_for_name_search);
       if (!found) {
@@ -557,10 +559,12 @@ void search_result(void) {
       clear_screen();
       printf("\n\n\t\t[ SEARCH RESULT BY SCORE: %" PRIu64 " ]\n", score);
       printf(
-          "\t\t============================================================\n");
-      printf("\t\t%-8s %-20s %-10s %-20s\n", "RANK", "NAME", "SCORE", "DATE");
+          "\t\t================================================================"
+          "==\n");
+      printf("\t\t%-8s %-20s %-10s %-25s\n", "RANK", "NAME", "SCORE", "DATE");
       printf(
-          "\t\t------------------------------------------------------------\n");
+          "\t\t----------------------------------------------------------------"
+          "--\n");
       uint64_t rank_for_score_search = 1;
       found =
           avl_print_by_score(result_tree->root, score, &rank_for_score_search);
@@ -579,10 +583,12 @@ void search_result(void) {
              " ]\n",
              min, max);
       printf(
-          "\t\t============================================================\n");
-      printf("\t\t%-8s %-20s %-10s %-20s\n", "RANK", "NAME", "SCORE", "DATE");
+          "\t\t================================================================"
+          "==\n");
+      printf("\t\t%-8s %-20s %-10s %-25s\n", "RANK", "NAME", "SCORE", "DATE");
       printf(
-          "\t\t------------------------------------------------------------\n");
+          "\t\t----------------------------------------------------------------"
+          "--\n");
       uint64_t rank_for_range_search = 1;
       found = avl_print_score_range(result_tree->root, min, max,
                                     &rank_for_range_search);
@@ -609,9 +615,13 @@ void print_result(void) {
   clear_screen();
   uint64_t count = 0;
   printf("\n\n\t\t[ ALL GAME RECORDS - RANKED ]\n");
-  printf("\t\t============================================================\n");
-  printf("\t\t%-8s %-20s %-10s %-20s\n", "RANK", "NAME", "SCORE", "DATE");
-  printf("\t\t------------------------------------------------------------\n");
+  printf(
+      "\t\t=================================================================="
+      "\n");
+  printf("\t\t%-8s %-20s %-10s %-25s\n", "RANK", "NAME", "SCORE", "DATE");
+  printf(
+      "\t\t------------------------------------------------------------------"
+      "\n");
   avl_node* node = result_tree->root;
   if (node == NULL) {
     printf("\n\t\tNo records found!\n");
