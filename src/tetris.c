@@ -269,17 +269,40 @@ void hold_block(void) {
     hold_block_number = block_number;
     block_number = next_block_number;
     next_block_number = get_next_from_bag();
-    block_state = 0;
+
     x = 3;
     y = 0;
+    block_state = 0;
 
     if (check_collision(x, y, block_state)) {
       game = GAME_END;
     }
   } else {
-    int temp = block_number;
+    int temp_block_type = block_number;
     block_number = hold_block_number;
-    hold_block_number = temp;
+    hold_block_number = temp_block_type;
+
+    y = 0;
+    block_state = 0;
+
+    // 중앙, 중앙+1, 중앙-1, ... 좌우로 확장
+    const int spawn_x_attempts[] = {3, 4, 2, 5, 1, 6, 0, 7};
+    int num_attempts = sizeof(spawn_x_attempts) / sizeof(spawn_x_attempts[0]);
+    bool spawned_successfully = false;
+
+    for (int i = 0; i < num_attempts; ++i) {
+      x = spawn_x_attempts[i];
+      if (!check_collision(x, y, block_state)) {
+        spawned_successfully = true;
+        break;
+      }
+    }
+
+    // 유효한 위치를 찾지 못하면 게임 오버
+    if (!spawned_successfully) {
+      x = 3;
+      game = GAME_END;
+    }
   }
 }
 
