@@ -6,8 +6,8 @@
 
 #include "types.h"
 
-#define AVL_TREE_NAME "play_result.dat"
-#define AVL_TREE_TEMP_NAME "play_result_temp.dat"
+#define AVL_TREE_NAME "tetris_history.dat"
+#define AVL_TREE_TEMP_NAME "tetris_history_temp.dat"
 
 typedef struct avl_node {
   play_result data;
