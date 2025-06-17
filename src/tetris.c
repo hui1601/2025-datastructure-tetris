@@ -386,7 +386,8 @@ int game_start(void) {
     display_tetris_table();
 
     time(&current_time);
-    if (difftime(current_time, start_time) >= 1.0) {
+    // 점수에 따라 블록이 떨어지는 속도 조절
+    if (difftime(current_time, start_time) >= 1 - (point / 1000000.0)) {
       move_block(DOWN);
       time(&start_time);
     }
