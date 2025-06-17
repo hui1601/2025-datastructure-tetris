@@ -80,7 +80,6 @@ clean:
 	-$(RM) $(OBJDIR)/*.o
 	-$(RM) $(OBJDIR)/platform/*.o
 	-$(RM) $(TARGET_EXE)
-	-$(RM) *.dat
 	-$(RM) -rf $(OBJDIR)
 	@echo "Cleanup complete."
 
